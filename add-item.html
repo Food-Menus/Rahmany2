@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة عنصر جديد - الرحماني</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>إضافة عنصر جديد</h1>
+        <form id="addItemForm">
+            <div class="form-group">
+                <label for="itemName">اسم العنصر:</label>
+                <input type="text" id="itemName" name="itemName" required>
+            </div>
+            <div class="form-group">
+                <label for="itemDescription">الوصف:</label>
+                <textarea id="itemDescription" name="itemDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="itemPrice">السعر:</label>
+                <input type="number" id="itemPrice" name="itemPrice" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="itemWeight">الوزن:</label>
+                <input type="number" id="itemWeight" name="itemWeight" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="itemSize">المقاس:</label>
+                <input type="text" id="itemSize" name="itemSize">
+            </div>
+            <div class="form-group">
+                <label for="itemWarehouse">المخزن الخاص به:</label>
+                <select id="itemWarehouse" name="itemWarehouse" required>
+                    <option value="">اختر مخزن</option>
+                    <option value="shubra">مخزن شبرا</option>
+                    <option value="embaba">مخزن إمبابة</option>
+                    <option value="other">مخزن آخر</option>
+                </select>
+            </div>
+            <button type="submit">إضافة العنصر</button>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('addItemForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const item = {
+                id: Date.now(), // Unique ID for each item
+                name: document.getElementById('itemName').value,
+                description: document.getElementById('itemDescription').value,
+                price: parseFloat(document.getElementById('itemPrice').value),
+                weight: parseFloat(document.getElementById('itemWeight').value),
+                size: document.getElementById('itemSize').value,
+                warehouse: document.getElementById('itemWarehouse').value,
+                // Initial inventory data
+                currentStock: 0,
+                withdraw: 0,
+                newStock: 0,
+                startStock: 0
+            };
+
+            let items = JSON.parse(localStorage.getItem('inventoryItems')) || [];
+            items.push(item);
+            localStorage.setItem('inventoryItems', JSON.stringify(items));
+
+            alert('تمت إضافة العنصر بنجاح!');
+            window.location.href = 'profile.html'; // Redirect back to profile page
+        });
+    </script>
+</body>
+</html>

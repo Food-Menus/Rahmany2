@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جرد المخزن - الرحماني</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 id="inventoryTitle">العناصر الخاصة بالمخازن</h1>
+        <div id="inventoryItemsContainer" class="inventory-items">
+            </div>
+        <button id="saveInventoryBtn">تسجيل البيانات</button>
+        <button id="printInventoryBtn" style="background-color: var(--dark-green);">طباعة الجدول كصورة</button>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inventoryItemsContainer = document.getElementById('inventoryItemsContainer');
+            const saveInventoryBtn = document.getElementById('saveInventoryBtn');
+            const printInventoryBtn = document.getElementById('printInventoryBtn');
+
+            let items = JSON.parse(localStorage.getItem('inventoryItems')) || [];
+
+            function renderInventoryItems() {
+                inventoryItemsContainer.innerHTML = ''; // Clear previous items
+
+                // Group items by warehouse
+                const warehouses = {};
+                items.forEach(item => {
+                    if (!warehouses[item.warehouse]) {
+                        warehouses[item.warehouse] = [];
+                    }
+                    warehouses[item.warehouse].push(item);
+                });
+
+                for (const warehouseName in warehouses) {
+                    const warehouseSection = document.createElement('div');
+                    warehouseSection.classList.add('warehouse-section');
+                    warehouseSection.innerHTML = `<h2>العناصر الخاصة بـ ${getWarehouseDisplayName(warehouseName)}</h2>`;
+                    inventoryItemsContainer.appendChild(warehouseSection);
+
+                    warehouses[warehouseName].forEach(item => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.classList.add('inventory-item');
+                        itemDiv.innerHTML = `
+                            <h3>${item.name}</h3>
+                            <div class="item-details">
+                                <p><strong>الوصف:</strong> ${item.description || 'لا يوجد'}</p>
+                                <p><strong>السعر:</strong> ${item.price} جنيه</p>
+                                <p><strong>الوزن:</strong> ${item.weight} كجم</p>
+                                <p><strong>المقاس:</strong> ${item.size || 'لا يوجد'}</p>
+                            </div>
+                            <div class="item-inputs">
+                                <div class="form-group">
+                                    <label for="currentStock-${item.id}">موجود:</label>
+                                    <input type="number" id="currentStock-${item.id}" value="${item.currentStock || 0}" data-item-id="${item.id}" data-field="currentStock">
+                                </div>
+                                <div class="form-group">
+                                    <label for="withdraw-${item.id}">سحب:</label>
+                                    <input type="number" id="withdraw-${item.id}" value="${item.withdraw || 0}" data-item-id="${item.id}" data-field="withdraw">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newStock-${item.id}">جديد:</label>
+                                    <input type="number" id="newStock-${item.id}" value="${item.newStock || 0}" data-item-id="${item.id}" data-field="newStock">
+                                </div>
+                                <div class="form-group">
+                                    <label for="startStock-${item.id}">بدأ:</label>
+                                    <input type="number" id="startStock-${item.id}" value="${item.startStock || 0}" data-item-id="${item.id}" data-field="startStock">
+                                </div>
+                            </div>
+                        `;
+                        inventoryItemsContainer.appendChild(itemDiv);
+                    });
+                }
+
+                // Add event listeners for input changes
+                inventoryItemsContainer.querySelectorAll('input[type="number"]').forEach(input => {
+                    input.addEventListener('change', (e) => {
+                        const itemId = parseInt(e.target.dataset.itemId);
+                        const field = e.target.dataset.field;
+                        const value = parseInt(e.target.value);
+                        
+                        const itemIndex = items.findIndex(item => item.id === itemId);
+                        if (itemIndex > -1) {
+                            items[itemIndex][field] = value;
+                        }
+                    });
+                });
+            }
+
+            function getWarehouseDisplayName(warehouseCode) {
+                switch (warehouseCode) {
+                    case 'shubra': return 'مخزن شبرا';
+                    case 'embaba': return 'مخزن إمبابة';
+                    case 'other': return 'مخزن آخر';
+                    default: return 'غير محدد';
+                }
+            }
+
+            renderInventoryItems();
+
+            saveInventoryBtn.addEventListener('click', () => {
+                localStorage.setItem('inventoryItems', JSON.stringify(items));
+                alert('تم حفظ بيانات الجرد بنجاح!');
+            });
+
+            printInventoryBtn.addEventListener('click', () => {
+                const element = document.getElementById('inventoryItemsContainer');
+                html2canvas(element, { scale: 2 }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'inventory_report.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    alert('تم حفظ التقرير كصورة PNG!');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
