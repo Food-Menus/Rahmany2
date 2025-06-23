@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - الرحماني</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./server/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -20,10 +20,11 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <button type="submit">تسجيل الدخول</button>
+            <p style="margin-top: 20px;"><a href="./clint/register.html" style="color: var(--dark-main); text-decoration: none;">ليس لديك حساب؟ إنشاء حساب جديد</a></p>
         </form>
     </div>
 
-    <script src="script.js"></script>
+    <script src="./server/script.js"></script>
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -35,7 +36,7 @@
             localStorage.setItem('loggedInPassword', password);
 
             // Redirect to profile page
-            window.location.href = 'profile.html';
+            window.location.href = './clint/profile.html';
         });
     </script>
 </body>
