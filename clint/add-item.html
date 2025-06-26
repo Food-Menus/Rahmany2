@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إضافة عنصر جديد - الرحماني</title>
+    <link rel="icon" href="./../server/static/icon.png" type="image/x-icon">
+    <title>The Rahmany</title>
     <link rel="stylesheet" href="./../server/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -84,6 +85,16 @@
                 console.error('Error adding item:', error);
                 alert('حدث خطأ أثناء إضافة العنصر. يرجى المحاولة مرة أخرى لاحقًا.');
             }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+        const selectedWarehouseForInventory = localStorage.getItem('selectedWarehouseForInventory');
+        if (!selectedWarehouseForInventory) {
+            window.location.href = './../index.html'; // إعادة التوجيه إلى صفحة تسجيل الدخول إذا لم يكن هناك اسم مستخدم
+        } else {
+            document.getElementById('selectedWarehouseForInventory').textContent = selectedWarehouseForInventory;
+        }
         });
     </script>
 </body>

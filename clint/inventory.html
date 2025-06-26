@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة الجرد اليومي - الرحماني</title>
+    <link rel="icon" href="./../server/static/icon.png" type="image/x-icon">
+    <title>The Rahmany</title>
     <link rel="stylesheet" href="./../server/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -143,9 +144,9 @@
 
             const selectedWarehouse = getSelectedWarehouse();
             
-            // تحديث عرض اسم المخزن في أعلى الصفحة
+            // تحديث عرض اسم المخزن في أعلى الصفحة - التعديل هنا
             if (selectedWarehouse) {
-                currentWarehouseDisplay.textContent = `جرد مخزن: ${getWarehouseDisplayName(selectedWarehouse)}`;
+                currentWarehouseDisplay.textContent = `جرد مخزن: ${selectedWarehouse}`; // استخدام الاسم مباشرة من localStorage
             } else {
                 currentWarehouseDisplay.textContent = 'الرجاء تحديد مخزن في صفحة البروفايل أولاً.';
             }
@@ -183,15 +184,7 @@
             }
         }
 
-        function getWarehouseDisplayName(warehouseCode) {
-            switch (warehouseCode) {
-                case 'shubra': return 'شبرا';
-                case 'embaba': return 'إمبابة';
-                case 'other': return 'آخر';
-                default: return 'غير محدد';
-            }
-        }
-
+        // تم إزالة الدالة getWarehouseDisplayName بالكامل من هنا.
 
         function renderFilteredItems(items, warehouseFilter) {
             itemInventorySection.innerHTML = '';
@@ -306,6 +299,15 @@
                 statusMessage.style.color = 'var(--error-color)';
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+        const selectedWarehouseForInventory = localStorage.getItem('selectedWarehouseForInventory');
+        if (!selectedWarehouseForInventory) {
+            window.location.href = './../index.html'; // إعادة التوجيه إلى صفحة تسجيل الدخول إذا لم يكن هناك اسم مستخدم
+        } else {
+            document.getElementById('selectedWarehouseForInventory').textContent = selectedWarehouseForInventory;
+        }
+        });
     </script>
 </body>
 </html>

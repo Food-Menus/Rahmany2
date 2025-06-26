@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - الرحماني</title>
-    <link rel="stylesheet" href="./server/static/style.css">
+    <link rel="icon" href="./server/static/icon.png" type="image/x-icon">
+    <title>The Rahmany</title>
+    <link rel="stylesheet" href="./server/static/style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -20,24 +21,94 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <button type="submit">تسجيل الدخول</button>
-            <p style="margin-top: 20px;"><a href="./clint/register.html" style="color: var(--dark-main); text-decoration: none;">ليس لديك حساب؟ إنشاء حساب جديد</a></p>
+            <p id="error-message"></p> <p style="margin-top: 20px;"><a href="./clint/register.html" style="color: #1976d2; text-decoration: none;">ليس لديك حساب؟ إنشاء حساب جديد</a></p>
         </form>
     </div>
 
-    <script src="./server/script.js"></script>
+    <script src="./server/script.js"></script> 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // منع الإرسال الافتراضي للنموذج
 
-            // Store username and password in localStorage
-            localStorage.setItem('loggedInUser', username);
-            localStorage.setItem('loggedInPassword', password);
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const errorMessageDiv = document.getElementById('error-message');
 
-            // Redirect to profile page
-            window.location.href = './clint/profile.html';
+            // قص المسافات البيضاء من بداية ونهاية اسم المستخدم وكلمة المرور المدخلة
+            const enteredUsername = usernameInput.value.trim(); 
+            const enteredPassword = passwordInput.value.trim();
+
+            errorMessageDiv.style.display = 'none'; // إخفاء أي رسائل خطأ سابقة
+            errorMessageDiv.textContent = ''; // مسح محتوى رسالة الخطأ
+
+            const spreadsheetId = '1m2lG_BqYVosJKJDMPisFiy3nf0ndAoPDb_afB6xwPJ4'; // معرف جدول بيانات المستخدمين
+            // رابط تصدير الجدول كملف CSV. يعمل فقط إذا كان الجدول منشوراً على الويب.
+            const usersCsvUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv`;
+
+            try {
+                // جلب بيانات المستخدمين من Google Sheet
+                const response = await fetch(usersCsvUrl);
+                if (!response.ok) {
+                    // رسالة خطأ أكثر وضوحًا إذا فشل جلب البيانات
+                    throw new Error(`لم نتمكن من الوصول لبيانات المستخدمين. تحقق من اتصال الإنترنت أو إعدادات النشر للجدول.`);
+                }
+                const csvText = await response.text();
+                const users = parseCSV(csvText); // تحليل بيانات CSV
+
+                let isAuthenticated = false;
+                for (const user of users) {
+                    // التحقق من اسم المستخدم وكلمة المرور (بعد قص المسافات من القيم المسترجعة أيضاً)
+                    // **التعديل هنا ليتطابق مع أسماء الأعمدة في جدولك: 'name' و 'password'**
+                    if (user.name === enteredUsername && user.password === enteredPassword) {
+                        isAuthenticated = true;
+                        break; // تم العثور على تطابق، لا داعي للمتابعة
+                    }
+                }
+
+                if (isAuthenticated) {
+                    // تسجيل الدخول بنجاح
+                    localStorage.setItem('loggedInUser', enteredUsername);
+                    localStorage.setItem('loggedInPassword', enteredPassword);
+                    // تسجيل المتغير الجديد المطلوب: selectedWarehouseForInventory بقيمة اسم المستخدم
+                    localStorage.setItem('selectedWarehouseForInventory', enteredUsername); 
+                    window.location.href = './clint/profile.html'; // إعادة التوجيه لصفحة الملف الشخصي
+                } else {
+                    // فشل تسجيل الدخول: اسم المستخدم أو كلمة المرور غير صحيحة
+                    errorMessageDiv.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+                    errorMessageDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                // التعامل مع أي أخطاء تحدث أثناء عملية الجلب أو التحليل
+                console.error('Error fetching or processing user data:', error);
+                errorMessageDiv.textContent = `حدث خطأ أثناء الاتصال بالنظام: ${error.message}. يرجى المحاولة لاحقاً.`;
+                errorMessageDiv.style.display = 'block';
+            }
         });
+
+        /**
+         * دالة مساعدة لتحليل نص CSV إلى مصفوفة من الكائنات.
+         * تفترض أن السطر الأول هو رؤوس الأعمدة.
+         * تقوم بقص المسافات البيضاء من رؤوس الأعمدة وقيم الخلايا.
+         */
+        function parseCSV(csv) {
+            const lines = csv.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+            if (lines.length === 0) return [];
+
+            const headers = lines[0].split(',').map(header => header.trim());
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(value => value.trim()); // قص المسافات من القيم أيضاً
+                const row = {};
+                headers.forEach((header, index) => {
+                    // التأكد من وجود قيمة قبل محاولة القص
+                    row[header] = values[index] ? values[index].trim() : ''; 
+                });
+                data.push(row);
+            }
+            return data;
+        }
     </script>
 </body>
 </html>
