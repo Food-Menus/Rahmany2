@@ -109,6 +109,17 @@
             }
             return data;
         }
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+        const selectedWarehouseForInventory = localStorage.getItem('selectedWarehouseForInventory');
+        if (selectedWarehouseForInventory) {
+            window.location.href = './clint/profile.html'; // إعادة التوجيه إلى صفحة تسجيل الدخول إذا لم يكن هناك اسم مستخدم
+        } else {
+            document.getElementById('selectedWarehouseForInventory').textContent = selectedWarehouseForInventory;
+        }
+        });
     </script>
 </body>
 </html>
