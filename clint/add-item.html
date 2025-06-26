@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إضافة عنصر جديد - الرحماني</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./../server/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -15,13 +15,13 @@
                 <label for="itemName">اسم العنصر:</label>
                 <input type="text" id="itemName" name="itemName" required>
             </div>
+             <div class="form-group">
+                <label for="itemPrise">السعر:</label>
+                <input type="number" id="itemPrise" name="itemPrise" step="0.01" required>
+            </div>
             <div class="form-group">
                 <label for="itemDescription">الوصف:</label>
                 <textarea id="itemDescription" name="itemDescription" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="itemPrice">السعر:</label>
-                <input type="number" id="itemPrice" name="itemPrice" step="0.01" required>
             </div>
             <div class="form-group">
                 <label for="itemWeight">الوزن:</label>
@@ -31,45 +31,59 @@
                 <label for="itemSize">المقاس:</label>
                 <input type="text" id="itemSize" name="itemSize">
             </div>
-            <div class="form-group">
-                <label for="itemWarehouse">المخزن الخاص به:</label>
-                <select id="itemWarehouse" name="itemWarehouse" required>
-                    <option value="">اختر مخزن</option>
-                    <option value="shubra">مخزن شبرا</option>
-                    <option value="embaba">مخزن إمبابة</option>
-                    <option value="other">مخزن آخر</option>
-                </select>
-            </div>
+            <!-- تم إزالة حقل اختيار المخزن هنا، سيتم الحصول عليه من localStorage -->
             <button type="submit">إضافة العنصر</button>
         </form>
     </div>
 
-    <script src="script.js"></script>
+    <script src="./../server/script.js"></script>
     <script>
-        document.getElementById('addItemForm').addEventListener('submit', function(event) {
+        // تأكد أن هذا الرابط هو الرابط الصحيح لتطبيق Google Apps Script Web App الخاص بجدول تفاصيل العناصر
+        const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyHa3Eb_xIFK1ljCEM5i-Aj5APqYHblDiicqy-lxCbM0ORMvJ4eIuN8lN057uXO5tU/exec'; 
+
+        // وظيفة لجلب المخزن المحدد من localStorage (تم تعيينها في صفحة إدارة الجرد اليومي)
+        function getSelectedWarehouse() {
+            return localStorage.getItem('selectedWarehouseForInventory') || '';
+        }
+
+        document.getElementById('addItemForm').addEventListener('submit', async function(event) {
             event.preventDefault();
+
+            const itemWarehouse = getSelectedWarehouse(); // الحصول على المخزن من localStorage
             
+            if (!itemWarehouse) {
+                // رسالة تنبيه إذا لم يتم اختيار مخزن في صفحة الجرد اليومي
+                alert('الرجاء اختيار مخزن في صفحة إدارة الجرد اليومي أولاً!');
+                return;
+            }
+
             const item = {
-                id: Date.now(), // Unique ID for each item
-                name: document.getElementById('itemName').value,
-                description: document.getElementById('itemDescription').value,
-                price: parseFloat(document.getElementById('itemPrice').value),
-                weight: parseFloat(document.getElementById('itemWeight').value),
-                size: document.getElementById('itemSize').value,
-                warehouse: document.getElementById('itemWarehouse').value,
-                // Initial inventory data
-                currentStock: 0,
-                withdraw: 0,
-                newStock: 0,
-                startStock: 0
+                Item_Name: document.getElementById('itemName').value,
+                Item_prise: parseFloat(document.getElementById('itemPrise').value),
+                Item_Details: document.getElementById('itemDescription').value,
+                Item_Weight: parseFloat(document.getElementById('itemWeight').value),
+                Item_Size: document.getElementById('itemSize').value,
+                Item_warehouse: itemWarehouse, // استخدام قيمة المخزن من localStorage
             };
 
-            let items = JSON.parse(localStorage.getItem('inventoryItems')) || [];
-            items.push(item);
-            localStorage.setItem('inventoryItems', JSON.stringify(items));
+            try {
+                const response = await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // مهم لـ Google Apps Script Web App لتجنب مشاكل CORS
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(item)
+                });
 
-            alert('تمت إضافة العنصر بنجاح!');
-            window.location.href = 'profile.html'; // Redirect back to profile page
+                // بما أن mode هو 'no-cors', لن نتمكن من الحصول على حالة الاستجابة مباشرة.
+                // نفترض النجاح إذا لم يحدث خطأ في الشبكة.
+                alert('تمت إضافة العنصر بنجاح! سيتم حفظ بياناتك في Google Sheet.');
+                document.getElementById('addItemForm').reset();
+            } catch (error) {
+                console.error('Error adding item:', error);
+                alert('حدث خطأ أثناء إضافة العنصر. يرجى المحاولة مرة أخرى لاحقًا.');
+            }
         });
     </script>
 </body>

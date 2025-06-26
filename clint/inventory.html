@@ -3,123 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جرد المخزن - الرحماني</title>
-    <link rel="stylesheet" href="style.css">
+    <title>إدارة الجرد اليومي - الرحماني</title>
+    <link rel="stylesheet" href="./../server/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Specific styles for this page if needed, otherwise rely on style.css */
+        .item-inventory-section {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .item-card {
+            background-color: var(--light-bg-card);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-align: right;
+            border: 1px solid var(--border-color);
+        }
+        .item-card h3 {
+            color: var(--secondary-accent);
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .item-card p {
+            font-size: 0.9em;
+            color: #616161;
+            margin-bottom: 10px;
+        }
+        .item-card .form-group {
+            margin-bottom: 10px;
+        }
+        .item-card .form-group label {
+            font-size: 0.9em;
+            color: #757575;
+            font-weight: 500;
+        }
+        .item-card .form-group input {
+            padding: 8px;
+            border-radius: 6px;
+            width: 100%; /* Ensure inputs take full width */
+            box-sizing: border-box; /* Include padding in width */
+            border: 1px solid var(--border-color);
+            background-color: var(--white);
+            color: var(--text-color);
+            direction: rtl;
+            text-align: right;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--dark-main);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #submitAllInventory {
+            margin-top: 30px;
+            width: 100%;
+        }
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+            direction: rtl; /* For Arabic text input */
+            text-align: right; /* For Arabic text input */
+            background-color: var(--white);
+            color: var(--text-color);
+        }
+    </style>
 </head>
 <body>
+    <!-- Navbar will be injected by script.js -->
+    
     <div class="container">
-        <h1 id="inventoryTitle">العناصر الخاصة بالمخازن</h1>
-        <div id="inventoryItemsContainer" class="inventory-items">
-            </div>
-        <button id="saveInventoryBtn">تسجيل البيانات</button>
-        <button id="printInventoryBtn" style="background-color: var(--dark-green);">طباعة الجدول كصورة</button>
+        <h1>إدارة الجرد اليومي للعناصر</h1>
+
+        <!-- تم إزالة قائمة اختيار المخزن المنسدلة من هنا -->
+        <h2 id="currentWarehouseDisplay" style="text-align: center; color: var(--dark-main); margin-bottom: 25px;"></h2>
+
+        <div id="loadingIndicator" class="loader" style="display: none;"></div>
+        <div id="errorMessage" style="color: var(--error-color); font-weight: bold; margin-top: 20px;"></div>
+
+        <div id="itemInventorySection" class="item-inventory-section">
+            <!-- Items and their inventory inputs will be loaded here -->
+        </div>
+
+        <button id="submitAllInventory">تسجيل جرد العناصر المحددة</button>
+        <div id="statusMessage" style="margin-top: 20px; font-weight: bold;"></div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Footer will be injected by script.js -->
+
+    <script src="./../server/script.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const inventoryItemsContainer = document.getElementById('inventoryItemsContainer');
-            const saveInventoryBtn = document.getElementById('saveInventoryBtn');
-            const printInventoryBtn = document.getElementById('printInventoryBtn');
+        // Update these URLs with your deployed Google Apps Script Web App URLs
+        // هذا الرابط لجدول بيانات العناصر (Item_Name, Item_prise, etc.)
+        const ITEM_DETAILS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyHa3Eb_xIFK1ljCEM5i-Aj5APqYHblDiicqy-lxCbM0ORMvJ4eIuN8lN057uXO5tU/exec'; 
+        // هذا الرابط لجدول سجلات الجرد (Inventory_Date, Inventory_Existing, etc.)
+        const INVENTORY_UPDATE_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzG8X6aHuRJ0-eGX_NxTnyhd-WwhtCXcgVK_49Qc2klqv_x6k7PQgmalel0SvkJX18A/exec'; 
 
-            let items = JSON.parse(localStorage.getItem('inventoryItems')) || [];
+        // تم إزالة warehouseSelector من هنا
+        const itemInventorySection = document.getElementById('itemInventorySection');
+        const submitAllInventoryButton = document.getElementById('submitAllInventory');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorMessage = document.getElementById('errorMessage');
+        const statusMessage = document.getElementById('statusMessage');
+        const currentWarehouseDisplay = document.getElementById('currentWarehouseDisplay');
 
-            function renderInventoryItems() {
-                inventoryItemsContainer.innerHTML = ''; // Clear previous items
+        let allFetchedItems = []; // To store all items fetched from the item details sheet
 
-                // Group items by warehouse
-                const warehouses = {};
-                items.forEach(item => {
-                    if (!warehouses[item.warehouse]) {
-                        warehouses[item.warehouse] = [];
-                    }
-                    warehouses[item.warehouse].push(item);
-                });
+        // Function to set and get the selected warehouse from localStorage
+        function getSelectedWarehouse() {
+            return localStorage.getItem('selectedWarehouseForInventory') || '';
+        }
 
-                for (const warehouseName in warehouses) {
-                    const warehouseSection = document.createElement('div');
-                    warehouseSection.classList.add('warehouse-section');
-                    warehouseSection.innerHTML = `<h2>العناصر الخاصة بـ ${getWarehouseDisplayName(warehouseName)}</h2>`;
-                    inventoryItemsContainer.appendChild(warehouseSection);
+        // تم إزالة setSelectedWarehouse لأنه لن يتم تغيير المخزن من هذه الصفحة
 
-                    warehouses[warehouseName].forEach(item => {
-                        const itemDiv = document.createElement('div');
-                        itemDiv.classList.add('inventory-item');
-                        itemDiv.innerHTML = `
-                            <h3>${item.name}</h3>
-                            <div class="item-details">
-                                <p><strong>الوصف:</strong> ${item.description || 'لا يوجد'}</p>
-                                <p><strong>السعر:</strong> ${item.price} جنيه</p>
-                                <p><strong>الوزن:</strong> ${item.weight} كجم</p>
-                                <p><strong>المقاس:</strong> ${item.size || 'لا يوجد'}</p>
-                            </div>
-                            <div class="item-inputs">
-                                <div class="form-group">
-                                    <label for="currentStock-${item.id}">موجود:</label>
-                                    <input type="number" id="currentStock-${item.id}" value="${item.currentStock || 0}" data-item-id="${item.id}" data-field="currentStock">
-                                </div>
-                                <div class="form-group">
-                                    <label for="withdraw-${item.id}">سحب:</label>
-                                    <input type="number" id="withdraw-${item.id}" value="${item.withdraw || 0}" data-item-id="${item.id}" data-field="withdraw">
-                                </div>
-                                <div class="form-group">
-                                    <label for="newStock-${item.id}">جديد:</label>
-                                    <input type="number" id="newStock-${item.id}" value="${item.newStock || 0}" data-item-id="${item.id}" data-field="newStock">
-                                </div>
-                                <div class="form-group">
-                                    <label for="startStock-${item.id}">بدأ:</label>
-                                    <input type="number" id="startStock-${item.id}" value="${item.startStock || 0}" data-item-id="${item.id}" data-field="startStock">
-                                </div>
-                            </div>
-                        `;
-                        inventoryItemsContainer.appendChild(itemDiv);
-                    });
-                }
+        // Initialize warehouse display and load items
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchAndDisplayItems(); // Fetch and display items based on selected warehouse from localStorage
 
-                // Add event listeners for input changes
-                inventoryItemsContainer.querySelectorAll('input[type="number"]').forEach(input => {
-                    input.addEventListener('change', (e) => {
-                        const itemId = parseInt(e.target.dataset.itemId);
-                        const field = e.target.dataset.field;
-                        const value = parseInt(e.target.value);
-                        
-                        const itemIndex = items.findIndex(item => item.id === itemId);
-                        if (itemIndex > -1) {
-                            items[itemIndex][field] = value;
-                        }
-                    });
-                });
-            }
-
-            function getWarehouseDisplayName(warehouseCode) {
-                switch (warehouseCode) {
-                    case 'shubra': return 'مخزن شبرا';
-                    case 'embaba': return 'مخزن إمبابة';
-                    case 'other': return 'مخزن آخر';
-                    default: return 'غير محدد';
-                }
-            }
-
-            renderInventoryItems();
-
-            saveInventoryBtn.addEventListener('click', () => {
-                localStorage.setItem('inventoryItems', JSON.stringify(items));
-                alert('تم حفظ بيانات الجرد بنجاح!');
-            });
-
-            printInventoryBtn.addEventListener('click', () => {
-                const element = document.getElementById('inventoryItemsContainer');
-                html2canvas(element, { scale: 2 }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = 'inventory_report.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    alert('تم حفظ التقرير كصورة PNG!');
-                });
-            });
+            submitAllInventoryButton.addEventListener('click', handleSubmitAllInventory);
         });
+
+        async function fetchAndDisplayItems() {
+            loadingIndicator.style.display = 'block';
+            errorMessage.textContent = '';
+            itemInventorySection.innerHTML = ''; // Clear previous items
+            statusMessage.textContent = ''; // Clear status message
+
+            const selectedWarehouse = getSelectedWarehouse();
+            
+            // تحديث عرض اسم المخزن في أعلى الصفحة
+            if (selectedWarehouse) {
+                currentWarehouseDisplay.textContent = `جرد مخزن: ${getWarehouseDisplayName(selectedWarehouse)}`;
+            } else {
+                currentWarehouseDisplay.textContent = 'الرجاء تحديد مخزن في صفحة البروفايل أولاً.';
+            }
+
+            if (!selectedWarehouse) {
+                loadingIndicator.style.display = 'none';
+                itemInventorySection.innerHTML = '<p style="text-align: center; color: #757575;">الرجاء اختيار مخزن في صفحة البروفايل لعرض العناصر.</p>';
+                return;
+            }
+
+            try {
+                // Fetch all items from the item details sheet (GET request)
+                const response = await fetch(ITEM_DETAILS_WEB_APP_URL, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.status === "success" && result.data) {
+                    allFetchedItems = result.data; // Store all fetched items
+                    renderFilteredItems(allFetchedItems, selectedWarehouse);
+                } else {
+                    errorMessage.textContent = result.message || 'خطأ في تحميل بيانات العناصر.';
+                }
+            } catch (error) {
+                console.error('Error fetching item details:', error);
+                errorMessage.textContent = `حدث خطأ أثناء تحميل بيانات العناصر: ${error.message}`;
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        function getWarehouseDisplayName(warehouseCode) {
+            switch (warehouseCode) {
+                case 'shubra': return 'شبرا';
+                case 'embaba': return 'إمبابة';
+                case 'other': return 'آخر';
+                default: return 'غير محدد';
+            }
+        }
+
+
+        function renderFilteredItems(items, warehouseFilter) {
+            itemInventorySection.innerHTML = '';
+            // Filter based on 'Item_warehouse' column in the fetched data
+            const filteredItems = items.filter(item => item.Item_warehouse === warehouseFilter);
+
+            if (filteredItems.length === 0) {
+                itemInventorySection.innerHTML = '<p style="text-align: center; color: #757575;">لا توجد عناصر لهذا المخزن. أضف عناصر جديدة أو اختر مخزنًا آخر.</p>';
+                return;
+            }
+
+            filteredItems.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.classList.add('item-card');
+                itemCard.innerHTML = `
+                    <h3>${item.Item_Name}</h3>
+                    <p>السعر: ${item.Item_prise}</p>
+                    <p>المخزن: ${item.Item_warehouse}</p>
+                    <div class="form-group">
+                        <label for="newStock-${item.Item_Name.replace(/\s+/g, '-')}-input">المخزون الجديد المضاف:</label>
+                        <input type="number" id="newStock-${item.Item_Name.replace(/\s+/g, '-')}-input" 
+                               data-item-name="${item.Item_Name}" 
+                               data-item-price="${item.Item_prise}" 
+                               data-item-warehouse="${item.Item_warehouse}"
+                               data-stock-type="new" step="1" >
+                    </div>
+                    <div class="form-group">
+                        <label for="pullStock-${item.Item_Name.replace(/\s+/g, '-')}-input">المخزون المسحوب:</label>
+                        <input type="number" id="pullStock-${item.Item_Name.replace(/\s+/g, '-')}-input" 
+                               data-item-name="${item.Item_Name}" 
+                               data-item-price="${item.Item_prise}" 
+                               data-item-warehouse="${item.Item_warehouse}"
+                               data-stock-type="pull" step="1">
+                    </div>
+                `;
+                itemInventorySection.appendChild(itemCard);
+            });
+        }
+
+        async function handleSubmitAllInventory() {
+            statusMessage.textContent = '';
+            const itemCards = itemInventorySection.querySelectorAll('.item-card');
+            const updates = [];
+
+            itemCards.forEach(card => {
+                const newStockInput = card.querySelector('input[data-stock-type="new"]');
+                const pullStockInput = card.querySelector('input[data-stock-type="pull"]');
+
+                const itemName = newStockInput.dataset.itemName;
+                const itemPrice = parseFloat(newStockInput.dataset.itemPrice);
+                const itemWarehouse = newStockInput.dataset.itemWarehouse;
+                const newStockValue = parseFloat(newStockInput.value) || 0;
+                const pullStockValue = parseFloat(pullStockInput.value) || 0;
+
+                // Only add to updates if there's a non-zero change
+                if (newStockValue !== 0 || pullStockValue !== 0) {
+                    updates.push({
+                        itemName: itemName,
+                        itemPrice: itemPrice,
+                        itemWarehouse: itemWarehouse,
+                        newStockInput: newStockValue,
+                        pullStockInput: pullStockValue
+                    });
+                }
+            });
+
+            if (updates.length === 0) {
+                statusMessage.textContent = 'لا توجد تحديثات لتسجيلها.';
+                statusMessage.style.color = 'var(--error-color)';
+                return;
+            }
+
+            loadingIndicator.style.display = 'block';
+            submitAllInventoryButton.disabled = true;
+
+            let successCount = 0;
+            let errorCount = 0;
+            const errors = [];
+
+            for (const update of updates) {
+                try {
+                    const response = await fetch(INVENTORY_UPDATE_WEB_APP_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', // For Google Apps Script Web Apps
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(update)
+                    });
+                    // Since 'no-cors', we can't check response.ok or read JSON directly.
+                    // We assume success if no network error occurred.
+                    successCount++;
+                    // Optionally reset inputs for this item after successful submission
+                    document.getElementById(`newStock-${update.itemName.replace(/\s+/g, '-')}-input`).value = '0';
+                    document.getElementById(`pullStock-${update.itemName.replace(/\s+/g, '-')}-input`).value = '0';
+
+                } catch (error) {
+                    console.error(`Error updating inventory for ${update.itemName}:`, error);
+                    errorCount++;
+                    errors.push(update.itemName);
+                }
+            }
+
+            loadingIndicator.style.display = 'none';
+            submitAllInventoryButton.disabled = false;
+
+            if (errorCount === 0) {
+                statusMessage.textContent = `تم تسجيل جرد ${successCount} عنصر بنجاح!`;
+                statusMessage.style.color = 'var(--secondary-accent)';
+            } else {
+                statusMessage.textContent = `تم تسجيل جرد ${successCount} عنصر بنجاح، وحدث خطأ في تسجيل ${errorCount} عنصر: ${errors.join(', ')}. تحقق من الكونسول للمزيد من التفاصيل.`;
+                statusMessage.style.color = 'var(--error-color)';
+            }
+        }
     </script>
 </body>
 </html>

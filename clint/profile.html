@@ -21,7 +21,7 @@
                 <h3>جرد المخزن</h3>
                 <p>تصفح جميع العناصر المدخلة وقم بتحديث بيانات الجرد.</p>
             </a>
-            <a href="#" id="printButton" class="profile-button">
+            <a href="print-data.html" id="printButton" class="profile-button">
                 <i class="fas fa-print"></i>
                 <h3>طباعة البيانات</h3>
                 <p>اطبع تقريرًا ببيانات الجرد الحالية.</p>
@@ -37,12 +37,12 @@
                 document.getElementById('welcomeMessage').innerText = `مرحباً بك يا ${username}!`;
             }
 
-            document.getElementById('printButton').addEventListener('click', function(event) {
-                event.preventDefault();
-                // We will handle printing from the inventory page for simplicity
-                alert('وظيفة الطباعة ستكون متاحة داخل صفحة جرد المخزن لسهولة التجميع.');
-                window.location.href = 'inventory.html'; // Redirect to inventory page to print from there
-            });
+            // document.getElementById('printButton').addEventListener('click', function(event) {
+            //     event.preventDefault();
+            //     // We will handle printing from the inventory page for simplicity
+            //     alert('وظيفة الطباعة ستكون متاحة داخل صفحة جرد المخزن لسهولة التجميع.');
+            //     window.location.href = 'inventory.html'; // Redirect to inventory page to print from there
+            // });
         });
     </script>
 </body>

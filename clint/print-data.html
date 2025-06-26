@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض بيانات المخزون</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap">
+    <style>
+        :root {
+            --primary-light: #f9fbe7;
+            --secondary-light: #e1f5fe;
+            --accent-color: #ffcc80;
+            --text-color: #424242;
+            --white: #ffffff;
+            --dark-blue: #1976d2;
+            --dark-green: #388e3c;
+            --dark-red: #d32f2f;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Almarai', sans-serif;
+            color: var(--text-color);
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 90%;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: right;
+        }
+        .data-table th {
+            background-color: var(--dark-blue);
+            color: var(--white);
+        }
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>عرض بيانات المخزون</h1>
+        <table class="data-table" id="inventoryTable">
+            <thead>
+                <tr>
+                    <th>تاريخ الجرد</th>
+                    <th>المخزون الحالي</th>
+                    <th>المخزون المضاف اليوم</th>
+                    <th>المخزون المسحوب اليوم</th>
+                    <th>مخزون بداية اليوم</th>
+                    <th>إجمالي الجديد الشهري</th>
+                    <th>إجمالي المسحوب الشهري</th>
+                    <th>اسم المنتج</th>
+                    <th>سعر المنتج</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // إعداد البيانات
+        const inventoryData = [
+            { Inventory_Date: '6/26/2025 4:41:01', Inventory_Existing: 8, Inventory_Pull: 2, Inventory_New: 10, Inventory_Started: 0, Monthly_Inventory_Pull: 2, Monthly_Inventory_New: 10, Inventory_Item_name: 'رز ابيض', Inventory_Item_prise: 410, Inventory_Item_warehouse: 'embaba' },
+            { Inventory_Date: '6/26/2025 4:41:04', Inventory_Existing: 50, Inventory_Pull: 30, Inventory_New: 80, Inventory_Started: 0, Monthly_Inventory_Pull: 30, Monthly_Inventory_New: 80, Inventory_Item_name: 'عيش بلدي', Inventory_Item_prise: 1, Inventory_Item_warehouse: 'embaba' },
+            // أضف المزيد من البيانات هنا حسب الحاجة
+        ];
+
+        const selectedWarehouseForInventory = 'embaba'; // من localStorage
+
+        // تصفية البيانات
+        const filteredData = inventoryData.filter(item => item.Inventory_Item_warehouse === selectedWarehouseForInventory);
+
+        // تحديد أحدث تاريخ
+        const latestDate = new Date(Math.max(...filteredData.map(item => new Date(item.Inventory_Date))));
+        
+        // تصفية البيانات حسب أحدث تاريخ
+        const latestData = filteredData.filter(item => new Date(item.Inventory_Date).toDateString() === latestDate.toDateString());
+
+        // عرض البيانات في الجدول
+        const tableBody = document.querySelector('#inventoryTable tbody');
+        latestData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.Inventory_Date.split(' ')[0]}</td>
+                <td>${item.Inventory_Existing}</td>
+                <td>${item.Inventory_New}</td>
+                <td>${item.Inventory_Pull}</td>
+                <td>${item.Inventory_Started}</td>
+                <td>${item.Monthly_Inventory_New}</td>
+                <td>${item.Monthly_Inventory_Pull}</td>
+                <td>${item.Inventory_Item_name}</td>
+                <td>${item.Inventory_Item_prise}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    </script>
+</body>
+</html>
