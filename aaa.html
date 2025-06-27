@@ -1,568 +1,549 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-    <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Rahmany - إدارة الجرد</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+    <title>Inventory Management</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS from your original style.css and specific styles, combined here */
-        :root {
-            --primary-bg: #f9f9f9;
-            --secondary-bg: #e0e0e0;
-            --light-bg-card: #ffffff;
-            --dark-main: #2196F3; /* Blue */
-            --secondary-accent: #4CAF50; /* Green */
-            --text-color: #333;
-            --light-text-color: #757575;
-            --border-color: #ddd;
-            --error-color: #dc3545; /* Red */
-        }
+        /* Apply Inter font to the body */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: var(--primary-bg);
-            margin: 0;
-            padding: 0;
-            color: var(--text-color);
-            direction: rtl; /* Right-to-left for Arabic */
-            text-align: right; /* Align text to the right */
+            font-family: 'Inter', sans-serif;
         }
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: var(--light-bg-card);
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        h1, h2, h3 {
-            color: var(--dark-main);
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: var(--light-text-color);
-        }
-        .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group select {
-            width: calc(100% - 20px); /* Adjust for padding */
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            font-size: 1em;
-            background-color: var(--secondary-bg);
-            color: var(--text-color);
-            direction: rtl;
-            text-align: right;
-            box-sizing: border-box; /* Include padding in width */
-        }
-        button {
-            background-color: var(--dark-main);
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease;
-            width: 100%;
-            box-sizing: border-box;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #1976D2; /* Darker blue */
-        }
-        button:disabled {
-            background-color: #A7D7F9;
-            cursor: not-allowed;
-        }
-
-        /* Specific styles for this page */
-        .item-inventory-section {
-            margin-top: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .item-card {
-            background-color: var(--light-bg-card);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            text-align: right;
-            border: 1px solid var(--border-color);
-        }
-        .item-card h3 {
-            color: var(--secondary-accent);
-            margin-bottom: 15px;
-            font-size: 1.5em;
-        }
-        .item-card p {
-            font-size: 0.9em;
-            color: #616161;
-            margin-bottom: 10px;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--dark-main);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        #submitAllInventory {
-            margin-top: 30px;
+        /* Basic table styling for better readability */
+        table {
+            border-collapse: collapse;
             width: 100%;
         }
-        .message {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            text-align: center;
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
         }
-        .message.success {
-            background-color: #D4EDDA;
-            color: #155724;
-            border: 1px solid #C3E6CB;
-        }
-        .message.error {
-            background-color: #F8D7DA;
-            color: #721C24;
-            border: 1px solid #F5C6CB;
-        }
-        .message.info {
-            background-color: #CCE5FF;
-            color: #004085;
-            border: 1px solid #B8DAFF;
-        }
-
-        /* Styles for the Delete Section */
-        #deleteSection {
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid var(--border-color);
-        }
-        #deleteSection h2 {
-            color: var(--error-color);
-            margin-bottom: 25px;
-        }
-        #deleteSection button {
-            background-color: var(--error-color);
-            margin-top: 15px;
-        }
-        #deleteSection button:hover {
-            background-color: #c82333;
-        }
-        #deleteSection button:disabled {
-            background-color: #F0A7B0;
-        }
-        .delete-option {
-            background-color: var(--secondary-bg);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-        }
-        .delete-option label {
-            color: var(--text-color);
-        }
-        #itemRowIndexToDelete, #warehouseValueToDelete {
-            background-color: var(--light-bg-card);
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>إدارة الجرد اليومي للعناصر</h1>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl w-full bg-white p-8 rounded-lg shadow-xl space-y-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 text-center">نظام إدارة المخزون</h1>
 
-        <h2 id="currentWarehouseDisplay" style="text-align: center; color: var(--dark-main); margin-bottom: 25px;"></h2>
+        <!-- Message Display Area -->
+        <!-- This div will show success, error, or info messages to the user -->
+        <div id="message-box" class="hidden p-4 rounded-md text-sm font-medium" role="alert"></div>
 
-        <div id="loadingIndicator" class="loader" style="display: none;"></div>
-        <div id="errorMessage" class="message error" style="display: none;"></div>
+        <!-- Add/Update Inventory Section -->
+        <section class="border border-gray-200 p-6 rounded-xl shadow-sm">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">إضافة / تحديث صنف مخزون</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="itemName" class="block text-sm font-medium text-gray-700">اسم الصنف:</label>
+                    <input type="text" id="itemName" placeholder="مثال: لابتوب، فأرة"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
+                <div>
+                    <label for="itemPrice" class="block text-sm font-medium text-gray-700">سعر الصنف:</label>
+                    <input type="number" id="itemPrice" step="0.01" placeholder="مثال: 1200.50"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
+                <div>
+                    <label for="itemWarehouse" class="block text-sm font-medium text-gray-700">مستودع الصنف:</label>
+                    <input type="text" id="itemWarehouse" placeholder="مثال: رئيسي، شرق"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
+                <div>
+                    <label for="newStockInput" class="block text-sm font-medium text-gray-700">كمية المخزون المضافة:</label>
+                    <input type="number" id="newStockInput" value="0" min="0"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
+                <div>
+                    <label for="pullStockInput" class="block text-sm font-medium text-gray-700">كمية المخزون المسحوبة:</label>
+                    <input type="number" id="pullStockInput" value="0" min="0"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
+            </div>
+            <button id="addUpdateBtn"
+                    class="mt-6 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                إضافة / تحديث المخزون
+            </button>
+        </section>
 
-        <div id="itemInventorySection" class="item-inventory-section">
+        <!-- Get Data Section -->
+        <section class="border border-gray-200 p-6 rounded-xl shadow-sm">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">عرض بيانات المخزون</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="getLatestItemName" class="block text-sm font-medium text-gray-700">الحصول على أحدث سجل لاسم الصنف:</label>
+                    <input type="text" id="getLatestItemName" placeholder="مثال: لابتوب"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
+                <div class="flex items-end space-x-2">
+                    <button id="getLatestItemBtn"
+                            class="flex-grow py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                        الحصول على أحدث سجل صنف
+                    </button>
+                    <button id="getAllInventoryBtn"
+                            class="flex-grow py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                        الحصول على جميع بيانات المخزون
+                    </button>
+                </div>
             </div>
 
-        <button id="submitAllInventory">تسجيل جرد العناصر المحددة</button>
-        <div id="statusMessage" class="message" style="display: none;"></div>
-
-        <div id="deleteSection">
-            <h2>إجراءات الحذف</h2>
-
-            <div class="delete-option">
-                <h3>حذف صف محدد</h3>
-                <div class="form-group">
-                    <label for="itemRowIndexToDelete">رقم الصف المراد حذفه (الرجاء التأكد جيداً):</label>
-                    <input type="number" id="itemRowIndexToDelete" placeholder="مثال: 5">
-                </div>
-                <div class="form-group">
-                    <label for="expectedWarehouseForDelete">المخزن المتوقع في هذا الصف (للتأكد):</label>
-                    <input type="text" id="expectedWarehouseForDelete" placeholder="مثال: شبرا">
-                </div>
-                <button id="deleteSpecificRowButton">حذف هذا الصف</button>
-                <div id="deleteSpecificRowMessage" class="message" style="display: none;"></div>
+            <!-- Display area for fetched inventory data -->
+            <div id="data-display" class="mt-6 border border-gray-300 rounded-md bg-gray-50 p-4 overflow-x-auto max-h-96 shadow-inner">
+                <p class="text-gray-600">ستظهر بيانات المخزون هنا.</p>
             </div>
+        </section>
 
-            <div class="delete-option">
-                <h3>حذف كل الصفوف لمخزن معين</h3>
-                <div class="form-group">
-                    <label for="warehouseValueToDelete">أدخل اسم المخزن لحذف جميع بياناته (الرجاء التأكد جيداً):</label>
-                    <input type="text" id="warehouseValueToDelete" placeholder="مثال: المخزن أ">
+        <!-- Delete Data Section -->
+        <section class="border border-gray-200 p-6 rounded-xl shadow-sm">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">حذف بيانات المخزون</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="deleteRowIndex" class="block text-sm font-medium text-gray-700">حذف صف محدد (رقم الصف):</label>
+                    <input type="number" id="deleteRowIndex" placeholder="مثال: 2 (الرأس هو الصف 1)" min="2"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
                 </div>
-                <button id="deleteByWarehouseButton">حذف جميع بيانات هذا المخزن</button>
-                <div id="deleteByWarehouseMessage" class="message" style="display: none;"></div>
+                <div>
+                    <label for="deleteExpectedWarehouse" class="block text-sm font-medium text-gray-700">المستودع المتوقع (للسلامة):</label>
+                    <input type="text" id="deleteExpectedWarehouse" placeholder="مثال: رئيسي"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
             </div>
-        </div>
+            <button id="deleteSpecificRowBtn"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out mb-4">
+                حذف صف محدد
+            </button>
+
+            <div class="mt-4">
+                <label for="deleteWarehouseName" class="block text-sm font-medium text-gray-700">حذف الكل حسب اسم المستودع:</label>
+                <input type="text" id="deleteWarehouseName" placeholder="مثال: شرق"
+                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+            </div>
+            <button id="deleteByWarehouseBtn"
+                    class="mt-6 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out">
+                حذف الكل حسب المستودع
+            </button>
+        </section>
     </div>
 
     <script>
-        // ** هام: استبدل هذا بعنوان Web App URL الخاص بك والذي يشغل كل الدوال (GET, POST, DELETE) **
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyT-aH-Lv8Abq4H_uups4UQ8580sBtaG-7X5JIRuZfBEhYBfjyJuDw4XSnQlKibahA9/exec'; 
+        // --- Configuration ---
+        // Replace this with your deployed Google Apps Script web app URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYKYvIMD-kl3xJKmt1LdFnM8vZAAwywNvHlhss305xp-2NBdmmDhknrbPY5eQBCgjD/exec";
 
-        const itemInventorySection = document.getElementById('itemInventorySection');
-        const submitAllInventoryButton = document.getElementById('submitAllInventory');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const errorMessageDiv = document.getElementById('errorMessage');
-        const statusMessageDiv = document.getElementById('statusMessage');
-        const currentWarehouseDisplay = document.getElementById('currentWarehouseDisplay');
+        // --- DOM Elements ---
+        const messageBox = document.getElementById('message-box');
+        const dataDisplay = document.getElementById('data-display');
 
-        // Delete elements
-        const itemRowIndexToDeleteInput = document.getElementById('itemRowIndexToDelete');
-        const expectedWarehouseForDeleteInput = document.getElementById('expectedWarehouseForDelete');
-        const deleteSpecificRowButton = document.getElementById('deleteSpecificRowButton');
-        const deleteSpecificRowMessageDiv = document.getElementById('deleteSpecificRowMessage');
+        // Input fields and buttons for Add/Update Inventory
+        const itemNameInput = document.getElementById('itemName');
+        const itemPriceInput = document.getElementById('itemPrice');
+        const itemWarehouseInput = document.getElementById('itemWarehouse');
+        const newStockInput = document.getElementById('newStockInput');
+        const pullStockInput = document.getElementById('pullStockInput');
+        const addUpdateBtn = document.getElementById('addUpdateBtn');
 
-        const warehouseValueToDeleteInput = document.getElementById('warehouseValueToDelete');
-        const deleteByWarehouseButton = document.getElementById('deleteByWarehouseButton');
-        const deleteByWarehouseMessageDiv = document.getElementById('deleteByWarehouseMessage');
+        // Input fields and buttons for Get Inventory Data
+        const getLatestItemNameInput = document.getElementById('getLatestItemName');
+        const getLatestItemBtn = document.getElementById('getLatestItemBtn');
+        const getAllInventoryBtn = document.getElementById('getAllInventoryBtn');
 
-        let allFetchedItems = []; // To store all items fetched from the item details sheet
+        // Input fields and buttons for Delete Inventory Data
+        const deleteRowIndexInput = document.getElementById('deleteRowIndex');
+        const deleteExpectedWarehouseInput = document.getElementById('deleteExpectedWarehouse');
+        const deleteSpecificRowBtn = document.getElementById('deleteSpecificRowBtn');
+        const deleteWarehouseNameInput = document.getElementById('deleteWarehouseName');
+        const deleteByWarehouseBtn = document.getElementById('deleteByWarehouseBtn');
 
-        // Function to set and get the selected warehouse from localStorage
-        function getSelectedWarehouse() {
-            return localStorage.getItem('selectedWarehouseForInventory') || '';
+        // --- Helper Functions ---
+
+        /**
+         * Displays a message in the dedicated message box area.
+         * The message box automatically hides after 5 seconds.
+         * @param {string} message The text message to display.
+         * @param {'success'|'error'|'info'} type The type of message, which determines styling.
+         */
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            // Remove previous styling classes to apply new ones
+            messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-blue-100', 'text-blue-800');
+
+            // Apply styling based on message type
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-800');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-800');
+            } else if (type === 'info') {
+                messageBox.classList.add('bg-blue-100', 'text-blue-800');
+            }
+            messageBox.classList.remove('hidden'); // Make the message box visible
+
+            // Hide the message after 5 seconds
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
         }
 
-        // Helper to display messages
-        function displayMessage(element, message, type) {
-            element.textContent = message;
-            element.className = `message ${type}`;
-            element.style.display = 'block';
+        /**
+         * Clears all input fields in the Add/Update and Delete sections.
+         */
+        function clearInputs() {
+            itemNameInput.value = '';
+            itemPriceInput.value = '';
+            itemWarehouseInput.value = '';
+            newStockInput.value = '0';
+            pullStockInput.value = '0';
+            getLatestItemNameInput.value = '';
+            deleteRowIndexInput.value = '';
+            deleteExpectedWarehouseInput.value = '';
+            deleteWarehouseNameInput.value = '';
         }
 
-        // Initialize warehouse display and load items on page load
-        document.addEventListener('DOMContentLoaded', async () => {
-            const selectedWarehouse = getSelectedWarehouse();
-            if (!selectedWarehouse) {
-                // If no warehouse is selected, redirect to profile page or show a message
-                currentWarehouseDisplay.textContent = 'الرجاء تحديد مخزن في صفحة البروفايل أولاً.';
-                itemInventorySection.innerHTML = '<p style="text-align: center; color: #757575;">الرجاء اختيار مخزن في صفحة البروفايل لعرض العناصر.</p>';
-                loadingIndicator.style.display = 'none';
-                // Optional: window.location.href = './../index.html'; // Or your profile/login page
+        /**
+         * Renders the provided inventory data into a dynamic HTML table.
+         * If no data is provided or the array is empty, a "No data" message is shown.
+         * @param {Array<Object>} data An array of inventory item objects, where each object
+         * represents a row and its keys are column headers.
+         */
+        function renderData(data) {
+            if (!data || data.length === 0) {
+                dataDisplay.innerHTML = '<p class="text-gray-600">لا توجد بيانات مخزون متاحة.</p>';
                 return;
-            } else {
-                currentWarehouseDisplay.textContent = `جرد مخزن: ${selectedWarehouse}`;
             }
 
-            await fetchAndDisplayItems(); // Fetch and display items based on selected warehouse from localStorage
+            // Create table element
+            const table = document.createElement('table');
+            table.classList.add('min-w-full', 'divide-y', 'divide-gray-200', 'shadow-sm', 'rounded-lg', 'overflow-hidden');
 
-            submitAllInventoryButton.addEventListener('click', handleSubmitAllInventory);
-            deleteSpecificRowButton.addEventListener('click', handleDeleteSpecificRow);
-            deleteByWarehouseButton.addEventListener('click', handleDeleteByWarehouse);
-        });
+            // Generate table headers from the keys of the first data object
+            const headers = Object.keys(data[0]);
+            const headerRow = `
+                <thead class="bg-gray-200">
+                    <tr>
+                        ${headers.map(header => `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header.replace(/_/g, ' ')}</th>`).join('')}
+                    </tr>
+                </thead>
+            `;
 
-        // --- Fetching and Displaying Items (GET operation) ---
-        async function fetchAndDisplayItems() {
-            loadingIndicator.style.display = 'block';
-            errorMessageDiv.style.display = 'none';
-            itemInventorySection.innerHTML = ''; // Clear previous items
-            statusMessageDiv.style.display = 'none'; // Clear status message
+            // Generate table body rows
+            const bodyRows = data.map(row => `
+                <tr class="hover:bg-gray-50">
+                    ${headers.map(header => {
+                        let value = row[header];
+                        // Format date values if they look like dates
+                        if (header.includes('Date') && value instanceof Date) {
+                            value = value.toLocaleDateString();
+                        }
+                        return `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${value}</td>`;
+                    }).join('')}
+                </tr>
+            `).join('');
 
-            const selectedWarehouse = getSelectedWarehouse();
-            if (!selectedWarehouse) {
-                loadingIndicator.style.display = 'none';
-                return; // Message already displayed
+            table.innerHTML = `${headerRow}<tbody class="bg-white divide-y divide-gray-200">${bodyRows}</tbody>`;
+
+            // Clear previous content and append the new table
+            dataDisplay.innerHTML = '';
+            dataDisplay.appendChild(table);
+        }
+
+        /**
+         * A custom confirmation dialog implemented as a modal.
+         * Replaces the native `window.confirm` for better UI control and consistency.
+         * @param {string} message The text message to display in the confirmation dialog.
+         * @returns {Promise<boolean>} A promise that resolves to true if 'Yes' is clicked, false otherwise.
+         */
+        function confirm(message) {
+            return new Promise((resolve) => {
+                const modal = document.createElement('div');
+                // Tailwind classes for modal overlay and centering
+                modal.classList.add('fixed', 'inset-0', 'bg-gray-600', 'bg-opacity-50', 'overflow-y-auto', 'h-full', 'w-full', 'flex', 'items-center', 'justify-center', 'z-50');
+                modal.innerHTML = `
+                    <div class="relative p-5 border w-96 shadow-lg rounded-xl bg-white animate-fade-in-up">
+                        <div class="mt-3 text-center">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">تأكيد</h3>
+                            <div class="mt-2 px-7 py-3">
+                                <p class="text-sm text-gray-500">${message}</p>
+                            </div>
+                            <div class="items-center px-4 py-3 flex justify-center space-x-4">
+                                <button id="confirmYes" class="px-6 py-2 bg-green-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2 transition duration-150 ease-in-out transform hover:scale-105">نعم</button>
+                                <button id="confirmNo" class="px-6 py-2 bg-red-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 transition duration-150 ease-in-out transform hover:scale-105">لا</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                // Add event listeners for the Yes and No buttons
+                document.getElementById('confirmYes').onclick = () => {
+                    modal.remove(); // Remove modal from DOM
+                    resolve(true);
+                };
+                document.getElementById('confirmNo').onclick = () => {
+                    modal.remove(); // Remove modal from DOM
+                    resolve(false);
+                };
+            });
+        }
+
+
+        // --- Event Listeners ---
+
+        // Event listener for the "Add / Update Inventory" button
+        addUpdateBtn.addEventListener('click', async () => {
+            // Get values from input fields and trim whitespace
+            const itemName = itemNameInput.value.trim();
+            const itemPrice = parseFloat(itemPriceInput.value); // Parse to float
+            const itemWarehouse = itemWarehouseInput.value.trim();
+            const newStock = parseInt(newStockInput.value); // Parse to integer
+            const pullStock = parseInt(pullStockInput.value); // Parse to integer
+
+            // Basic validation for required fields
+            if (!itemName || isNaN(itemPrice) || !itemWarehouse) {
+                showMessage('الرجاء تعبئة جميع الحقول المطلوبة (اسم الصنف، السعر، المستودع).', 'error');
+                return; // Stop execution if validation fails
+            }
+
+            // Validate stock inputs
+            if (isNaN(newStock) || newStock < 0) {
+                 showMessage('يجب أن يكون المخزون الجديد رقمًا غير سالب.', 'error');
+                 return;
+            }
+            if (isNaN(pullStock) || pullStock < 0) {
+                showMessage('يجب أن يكون المخزون المسحوب رقمًا غير سالب.', 'error');
+                return;
             }
 
             try {
-                // Fetch all items from the inventory sheet (using the unified WEB_APP_URL for GET)
-                const response = await fetch(`${WEB_APP_URL}?action=getAllInventoryData`, {
-                    method: 'GET',
-                    // mode: 'cors' is default and preferred, 'no-cors' for specific scenarios but has limitations
-                });
+                addUpdateBtn.textContent = 'جاري المعالجة...'; // Update button text for feedback
+                addUpdateBtn.disabled = true; // Disable button to prevent multiple submissions
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result.status === "success" && result.data) {
-                    allFetchedItems = result.data; // Store all fetched items
-                    renderFilteredItems(allFetchedItems, selectedWarehouse);
-                } else {
-                    displayMessage(errorMessageDiv, result.message || 'خطأ في تحميل بيانات العناصر.', 'error');
-                }
-            } catch (error) {
-                console.error('Error fetching inventory data:', error);
-                displayMessage(errorMessageDiv, `حدث خطأ أثناء تحميل بيانات الجرد: ${error.message}`, 'error');
-            } finally {
-                loadingIndicator.style.display = 'none';
-            }
-        }
-
-        function renderFilteredItems(items, warehouseFilter) {
-            itemInventorySection.innerHTML = '';
-            // Filter based on 'Inventory_Item_warehouse' column in the fetched data
-            // We need to filter unique items for input forms.
-            const uniqueItems = {};
-            items.forEach(item => {
-                // Only consider items for the selected warehouse
-                if (item.Inventory_Item_warehouse === warehouseFilter) {
-                    // Store the latest record for each item name
-                    if (!uniqueItems[item.Inventory_Item_name] || item.rowIndex > uniqueItems[item.Inventory_Item_name].rowIndex) {
-                        uniqueItems[item.Inventory_Item_name] = item;
-                    }
-                }
-            });
-
-            const filteredItemsForDisplay = Object.values(uniqueItems); // Get array of unique, latest items
-
-            if (filteredItemsForDisplay.length === 0) {
-                itemInventorySection.innerHTML = '<p style="text-align: center; color: #757575;">لا توجد عناصر لهذا المخزن في الجرد الحالي. أضف عناصر جديدة أو اختر مخزنًا آخر.</p>';
-                return;
-            }
-
-            filteredItemsForDisplay.forEach(item => {
-                const itemCard = document.createElement('div');
-                itemCard.classList.add('item-card');
-                itemCard.innerHTML = `
-                    <h3>${item.Inventory_Item_name}</h3>
-                    <p>السعر: ${item.Inventory_Item_prise || 'غير محدد'}</p>
-                    <p>المخزن: ${item.Inventory_Item_warehouse}</p>
-                    <p>المخزون الحالي (آخر جرد): ${item.Inventory_Existing || 0}</p>
-                    <div class="form-group">
-                        <label for="newStock-${item.Inventory_Item_name.replace(/\s+/g, '-')}-input">المخزون الجديد المضاف:</label>
-                        <input type="number" id="newStock-${item.Inventory_Item_name.replace(/\s+/g, '-')}-input" 
-                               data-item-name="${item.Inventory_Item_name}" 
-                               data-item-price="${item.Inventory_Item_prise}" 
-                               data-item-warehouse="${item.Inventory_Item_warehouse}"
-                               data-stock-type="new" step="1" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="pullStock-${item.Inventory_Item_name.replace(/\s+/g, '-')}-input">المخزون المسحوب:</label>
-                        <input type="number" id="pullStock-${item.Inventory_Item_name.replace(/\s+/g, '-')}-input" 
-                               data-item-name="${item.Inventory_Item_name}" 
-                               data-item-price="${item.Inventory_Item_prise}" 
-                               data-item-warehouse="${item.Inventory_Item_warehouse}"
-                               data-stock-type="pull" step="1" value="0">
-                    </div>
-                `;
-                itemInventorySection.appendChild(itemCard);
-            });
-        }
-
-        // --- Submitting Inventory Updates (POST operation) ---
-        async function handleSubmitAllInventory() {
-            statusMessageDiv.style.display = 'none';
-            errorMessageDiv.style.display = 'none';
-            const itemCards = itemInventorySection.querySelectorAll('.item-card');
-            const updates = [];
-
-            itemCards.forEach(card => {
-                const newStockInput = card.querySelector('input[data-stock-type="new"]');
-                const pullStockInput = card.querySelector('input[data-stock-type="pull"]');
-
-                const itemName = newStockInput.dataset.itemName;
-                const itemPrice = parseFloat(newStockInput.dataset.itemPrice); // Use actual dataset value
-                const itemWarehouse = newStockInput.dataset.itemWarehouse;
-                const newStockValue = parseFloat(newStockInput.value) || 0;
-                const pullStockValue = parseFloat(pullStockInput.value) || 0;
-
-                // Only add to updates if there's a non-zero change
-                if (newStockValue !== 0 || pullStockValue !== 0) {
-                    updates.push({
+                // Send a POST request to the Google Apps Script web app
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    // Important: Use 'text/plain;charset=utf-8' for Google Apps Script doPost to correctly parse JSON
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify({ // Send data as JSON string
+                        action: 'addOrUpdateInventory', // Added action field
                         itemName: itemName,
                         itemPrice: itemPrice,
                         itemWarehouse: itemWarehouse,
-                        newStockInput: newStockValue,
-                        pullStockInput: pullStockValue
-                    });
+                        newStockInput: newStock,
+                        pullStockInput: pullStock
+                    })
+                });
+                const result = await response.json(); // Parse the JSON response from the server
+
+                if (result.status === 'success') {
+                    showMessage(result.message, 'success'); // Show success message
+                    clearInputs(); // Clear input fields
+                    getAllInventoryBtn.click(); // Refresh all inventory data after a successful update
+                } else {
+                    showMessage(`خطأ: ${result.message}`, 'error'); // Show error message from the server
                 }
-            });
-
-            if (updates.length === 0) {
-                displayMessage(statusMessageDiv, 'لا توجد تحديثات لتسجيلها.', 'info');
-                return;
+            } catch (error) {
+                console.error('Error adding/updating inventory:', error); // Log detailed error to console
+                showMessage('حدث خطأ غير متوقع أثناء إضافة/تحديث المخزون. يرجى التحقق من وحدة التحكم.', 'error'); // Generic error message for user
+            } finally {
+                addUpdateBtn.textContent = 'إضافة / تحديث المخزون'; // Restore button text
+                addUpdateBtn.disabled = false; // Re-enable button
             }
+        });
 
-            loadingIndicator.style.display = 'block';
-            submitAllInventoryButton.disabled = true;
+        // Event listener for the "Get All Inventory Data" button
+        getAllInventoryBtn.addEventListener('click', async () => {
+            try {
+                getAllInventoryBtn.textContent = 'جاري التحميل...';
+                getAllInventoryBtn.disabled = true;
+                dataDisplay.innerHTML = '<p class="text-gray-600">جاري تحميل جميع بيانات المخزون...</p>'; // Show loading indicator
 
-            let successCount = 0;
-            let errorCount = 0;
-            const errors = [];
+                // Send a GET request to the Google Apps Script web app with an action parameter
+                const response = await fetch(`${SCRIPT_URL}?action=getAllInventoryData`);
+                const result = await response.json();
 
-            for (const update of updates) {
-                try {
-                    const response = await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(update)
-                    });
-
-                    const result = await response.json(); // Parse JSON response
-
-                    if (result.status === "success") {
-                        successCount++;
-                        // Optionally reset inputs for this item after successful submission
-                        document.getElementById(`newStock-${update.itemName.replace(/\s+/g, '-')}-input`).value = '0';
-                        document.getElementById(`pullStock-${update.itemName.replace(/\s+/g, '-')}-input`).value = '0';
-                    } else {
-                        errorCount++;
-                        errors.push(`${update.itemName}: ${result.message}`);
-                        console.error(`Error processing update for ${update.itemName}:`, result.message);
-                    }
-                } catch (error) {
-                    console.error(`Network or parse error updating inventory for ${update.itemName}:`, error);
-                    errorCount++;
-                    errors.push(`${update.itemName} (خطأ شبكة/تحليل)`);
+                if (result.status === 'success') {
+                    renderData(result.data); // Render the fetched data into the table
+                    showMessage('تم تحميل جميع بيانات المخزون بنجاح.', 'info');
+                } else {
+                    showMessage(`خطأ: ${result.message}`, 'error');
+                    dataDisplay.innerHTML = `<p class="text-red-600">خطأ في تحميل البيانات: ${result.message}</p>`;
                 }
+            } catch (error) {
+                console.error('Error fetching all inventory data:', error);
+                showMessage('حدث خطأ غير متوقع أثناء جلب جميع بيانات المخزون. يرجى التحقق من وحدة التحكم.', 'error');
+                dataDisplay.innerHTML = `<p class="text-red-600">حدث خطأ: ${error.message}</p>`;
+            } finally {
+                getAllInventoryBtn.textContent = 'الحصول على جميع بيانات المخزون';
+                getAllInventoryBtn.disabled = false;
             }
+        });
 
-            loadingIndicator.style.display = 'none';
-            submitAllInventoryButton.disabled = false;
-
-            if (errorCount === 0) {
-                displayMessage(statusMessageDiv, `تم تسجيل جرد ${successCount} عنصر بنجاح!`, 'success');
-                // Re-fetch data to update current stock display after submission
-                await fetchAndDisplayItems(); 
-            } else {
-                displayMessage(statusMessageDiv, `تم تسجيل جرد ${successCount} عنصر بنجاح، وحدث خطأ في تسجيل ${errorCount} عنصر: ${errors.join(', ')}. تحقق من الكونسول للمزيد من التفاصيل.`, 'error');
-            }
-        }
-
-        // --- Delete Operations (DELETE requests) ---
-
-        async function handleDeleteSpecificRow() {
-            deleteSpecificRowMessageDiv.style.display = 'none';
-            const rowIndex = parseInt(itemRowIndexToDeleteInput.value);
-            const expectedWarehouse = expectedWarehouseForDeleteInput.value.trim();
-
-            if (isNaN(rowIndex) || rowIndex < 2) {
-                displayMessage(deleteSpecificRowMessageDiv, 'الرجاء إدخال رقم صف صحيح (أكبر من 1).', 'error');
+        // Event listener for the "Get Latest Item Record" button
+        getLatestItemBtn.addEventListener('click', async () => {
+            const itemName = getLatestItemNameInput.value.trim();
+            if (!itemName) {
+                showMessage('الرجاء إدخال اسم صنف للحصول على أحدث سجل له.', 'error');
                 return;
             }
-            if (!expectedWarehouse) {
-                displayMessage(deleteSpecificRowMessageDiv, 'الرجاء إدخال اسم المخزن للتأكد.', 'error');
-                return;
-            }
-
-            if (!confirm(`هل أنت متأكد من حذف الصف رقم ${rowIndex} للمخزن ${expectedWarehouse}؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
-                return;
-            }
-
-            loadingIndicator.style.display = 'block';
-            deleteSpecificRowButton.disabled = true;
 
             try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'DELETE',
+                getLatestItemBtn.textContent = 'جاري التحميل...';
+                getLatestItemBtn.disabled = true;
+                dataDisplay.innerHTML = `<p class="text-gray-600">جاري تحميل أحدث سجل لـ "${itemName}"...</p>`;
+
+                // Send a GET request with action and itemName parameters
+                const response = await fetch(`${SCRIPT_URL}?action=getLatestItem&itemName=${encodeURIComponent(itemName)}`);
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    renderData([result.data]); // Render the single item record (as an array for renderData function)
+                    showMessage(`تم تحميل أحدث سجل لـ "${itemName}" بنجاح.`, 'success');
+                } else if (result.status === 'info') {
+                    showMessage(result.message, 'info'); // Message if item not found
+                    dataDisplay.innerHTML = `<p class="text-blue-600">${result.message}</p>`;
+                } else {
+                    showMessage(`خطأ: ${result.message}`, 'error');
+                    dataDisplay.innerHTML = `<p class="text-red-600">خطأ في تحميل البيانات: ${result.message}</p>`;
+                }
+            } catch (error) {
+                console.error('Error fetching latest item record:', error);
+                showMessage('حدث خطأ غير متوقع أثناء جلب أحدث سجل للصنف. يرجى التحقق من وحدة التحكم.', 'error');
+                dataDisplay.innerHTML = `<p class="text-red-600">حدث خطأ: ${error.message}</p>`;
+            } finally {
+                getLatestItemBtn.textContent = 'الحصول على أحدث سجل صنف';
+                getLatestItemBtn.disabled = false;
+            }
+        });
+
+
+        // Event listener for the "Delete Specific Row" button
+        deleteSpecificRowBtn.addEventListener('click', async () => {
+            const rowIndex = parseInt(deleteRowIndexInput.value);
+            const expectedWarehouse = deleteExpectedWarehouseInput.value.trim();
+
+            if (isNaN(rowIndex) || rowIndex < 2 || !expectedWarehouse) {
+                showMessage('الرجاء إدخال رقم صف صالح (يجب أن يكون 2 أو أكبر) والمستودع المتوقع لحذف صف محدد.', 'error');
+                return;
+            }
+
+            // Show custom confirmation dialog before proceeding
+            const confirmed = await confirm(`هل أنت متأكد أنك تريد حذف الصف ${rowIndex} من المستودع المتوقع "${expectedWarehouse}"؟ لا يمكن التراجع عن هذا الإجراء.`);
+            if (!confirmed) {
+                return; // User cancelled the operation
+            }
+
+            try {
+                deleteSpecificRowBtn.textContent = 'جاري الحذف...';
+                deleteSpecificRowBtn.disabled = true;
+
+                // Send a POST request, as Google Apps Script's doDelete is triggered by POST
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'text/plain;charset=utf-8'
                     },
-                    body: JSON.stringify({
-                        action: "deleteSpecificRow",
+                    body: JSON.stringify({ // Send action and parameters in the body
+                        action: 'deleteSpecificRow',
                         rowIndex: rowIndex,
                         expectedWarehouse: expectedWarehouse
                     })
                 });
-
                 const result = await response.json();
-                if (result.status === "success") {
-                    displayMessage(deleteSpecificRowMessageDiv, result.message, 'success');
-                    itemRowIndexToDeleteInput.value = ''; // Clear input
-                    expectedWarehouseForDeleteInput.value = ''; // Clear input
-                    await fetchAndDisplayItems(); // Refresh displayed items
-                } else if (result.status === "info" || result.status === "skipped") {
-                    displayMessage(deleteSpecificRowMessageDiv, result.message, 'info');
-                }
-                else {
-                    displayMessage(deleteSpecificRowMessageDiv, `خطأ في الحذف: ${result.message}`, 'error');
+
+                if (result.status === 'success' || result.status === 'info') {
+                    showMessage(result.message, result.status);
+                    clearInputs();
+                    getAllInventoryBtn.click(); // Refresh data display
+                } else {
+                    showMessage(`خطأ: ${result.message}`, 'error');
                 }
             } catch (error) {
                 console.error('Error deleting specific row:', error);
-                displayMessage(deleteSpecificRowMessageDiv, `حدث خطأ أثناء حذف الصف: ${error.message}`, 'error');
+                showMessage('حدث خطأ غير متوقع أثناء حذف الصف المحدد. يرجى التحقق من وحدة التحكم.', 'error');
             } finally {
-                loadingIndicator.style.display = 'none';
-                deleteSpecificRowButton.disabled = false;
+                deleteSpecificRowBtn.textContent = 'حذف صف محدد';
+                deleteSpecificRowBtn.disabled = false;
             }
-        }
+        });
 
-        async function handleDeleteByWarehouse() {
-            deleteByWarehouseMessageDiv.style.display = 'none';
-            const warehouseValue = warehouseValueToDeleteInput.value.trim();
+        // Event listener for the "Delete All By Warehouse" button
+        deleteByWarehouseBtn.addEventListener('click', async () => {
+            const warehouseName = deleteWarehouseNameInput.value.trim();
 
-            if (!warehouseValue) {
-                displayMessage(deleteByWarehouseMessageDiv, 'الرجاء إدخال اسم المخزن المراد حذف بياناته بالكامل.', 'error');
+            if (!warehouseName) {
+                showMessage('الرجاء إدخال اسم المستودع لحذف جميع السجلات المرتبطة به.', 'error');
                 return;
             }
 
-            if (!confirm(`هل أنت متأكد تمامًا من حذف كل بيانات مخزن "${warehouseValue}"؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
-                return;
+            // Show custom confirmation dialog
+            const confirmed = await confirm(`هل أنت متأكد أنك تريد حذف جميع السجلات للمستودع "${warehouseName}"؟ لا يمكن التراجع عن هذا الإجراء.`);
+            if (!confirmed) {
+                return; // User cancelled
             }
-
-            loadingIndicator.style.display = 'block';
-            deleteByWarehouseButton.disabled = true;
 
             try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'DELETE',
+                deleteByWarehouseBtn.textContent = 'جاري الحذف...';
+                deleteByWarehouseBtn.disabled = true;
+
+                // Send a POST request for the delete action
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'text/plain;charset=utf-8'
                     },
                     body: JSON.stringify({
-                        action: "deleteByWarehouse",
-                        warehouseValue: warehouseValue
+                        action: 'deleteByWarehouse',
+                        warehouseValue: warehouseName
                     })
                 });
-
                 const result = await response.json();
-                if (result.status === "success") {
-                    displayMessage(deleteByWarehouseMessageDiv, result.message, 'success');
-                    warehouseValueToDeleteInput.value = ''; // Clear input
-                    await fetchAndDisplayItems(); // Refresh displayed items
-                } else if (result.status === "info") {
-                    displayMessage(deleteByWarehouseMessageDiv, result.message, 'info');
-                }
-                else {
-                    displayMessage(deleteByWarehouseMessageDiv, `خطأ في الحذف: ${result.message}`, 'error');
+
+                if (result.status === 'success' || result.status === 'info') {
+                    showMessage(result.message, result.status);
+                    clearInputs();
+                    getAllInventoryBtn.click(); // Refresh data display
+                } else {
+                    showMessage(`خطأ: ${result.message}`, 'error');
                 }
             } catch (error) {
                 console.error('Error deleting by warehouse:', error);
-                displayMessage(deleteByWarehouseMessageDiv, `حدث خطأ أثناء حذف بيانات المخزن: ${error.message}`, 'error');
+                showMessage('حدث خطأ غير متوقع أثناء الحذف حسب المستودع. يرجى التحقق من وحدة التحكم.', 'error');
             } finally {
-                loadingIndicator.style.display = 'none';
-                deleteByWarehouseButton.disabled = false;
+                deleteByWarehouseBtn.textContent = 'حذف الكل حسب المستودع';
+                deleteByWarehouseBtn.disabled = false;
+            }
+        });
+
+        // --- Initial Load ---
+        // Trigger fetching all inventory data when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            getAllInventoryBtn.click();
+        });
+
+        /*
+        // Tailwind CSS for modal animations (add this to style block if not already there)
+        // You might need to adjust or include specific animation utility classes based on your Tailwind setup.
+        // For simple fade-in, these are usually enough.
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.3s ease-out forwards;
+        }
+        */
     </script>
 </body>
 </html>

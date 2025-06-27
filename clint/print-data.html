@@ -9,25 +9,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
 <style>
-    /* الأنماط الموفرة من قبل المستخدم */
     :root {
-        --primary-light: #f9fbe7; /* Light Lime Green */
-        --secondary-light: #e1f5fe; /* Light Sky Blue */
-        --accent-color: #ffcc80; /* Light Orange */
-        --text-color: #424242; /* Dark Gray */
+        --primary-light: #f9fbe7;
+        --secondary-light: #e1f5fe;
+        --accent-color: #ffcc80;
+        --text-color: #424242;
         --white: #ffffff;
-        --dark-blue: #1976d2; /* Deep Blue */
-        --dark-green: #388e3c; /* Deep Green */
-        --dark-red: #d32f2f; /* Deep Red */
+        --dark-blue: #1976d2;
+        --dark-green: #388e3c;
+        --dark-red: #d32f2f;
     }
 
-    /* استخدام !important لضمان ثبات الألوان */
     * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
         font-family: 'Almarai', sans-serif;
-        color: var(--text-color) !important; /* تثبيت لون النص العام */
+        color: var(--text-color) !important;
     }
 
     body {
@@ -49,52 +47,50 @@
     }
 
     .container {
-        background-color: var(--white) !important; /* تثبيت لون الخلفية */
+        background-color: var(--white) !important;
         padding: 30px;
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         text-align: center;
         max-width: 90%;
-        width: 1000px; /* Increased width for better table display */
+        width: 1000px;
         margin: 20px auto;
     }
 
-    /* Navbar */
     .navbar {
         width: 100%;
-        background-color: var(--dark-blue) !important; /* تثبيت لون الخلفية */
+        background-color: var(--dark-blue) !important;
         padding: 15px 30px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        color: var(--white) !important; /* تثبيت لون النص */
+        color: var(--white) !important;
     }
 
     .navbar .brand {
         font-size: 1.8em;
         font-weight: 700;
-        color: var(--white) !important; /* تثبيت لون النص */
+        color: var(--white) !important;
         text-decoration: none;
     }
 
-    /* Footer */
     .footer {
         width: 100%;
-        background-color: var(--dark-blue) !important; /* تثبيت لون الخلفية */
+        background-color: var(--dark-blue) !important;
         padding: 15px 0;
         text-align: center;
-        color: var(--white) !important; /* تثبيت لون النص */
-        margin-top: auto; /* Push footer to the bottom */
+        color: var(--white) !important;
+        margin-top: auto;
     }
 
     .footer p {
-        color: var(--white) !important; /* تثبيت لون النص */
+        color: var(--white) !important;
         font-size: 0.9em;
     }
 
     h1, h2 {
-        color: var(--dark-green) !important; /* تثبيت لون العناوين */
+        color: var(--dark-green) !important;
         margin-bottom: 20px;
     }
 
@@ -119,13 +115,13 @@
         border: 1px solid #ccc;
         border-radius: 8px;
         font-size: 1em;
-        direction: rtl; /* For Arabic text input */
-        text-align: right; /* For Arabic text input */
+        direction: rtl;
+        text-align: right;
     }
 
     button {
-        background-color: var(--dark-blue) !important; /* تثبيت لون الخلفية */
-        color: var(--white) !important; /* تثبيت لون النص */
+        background-color: var(--dark-blue) !important;
+        color: var(--white) !important;
         padding: 12px 25px;
         border: none;
         border-radius: 8px;
@@ -136,7 +132,7 @@
     }
 
     button:hover {
-        background-color: #1565c0 !important; /* تثبيت لون الخلفية عند الهوفر */
+        background-color: #1565c0 !important;
         transform: translateY(-2px);
     }
 
@@ -144,7 +140,6 @@
         transform: translateY(0);
     }
 
-    /* Profile Page Specific */
     .profile-buttons {
         display: flex;
         flex-direction: column;
@@ -156,13 +151,13 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color: var(--accent-color) !important; /* تثبيت لون الخلفية */
+        background-color: var(--accent-color) !important;
         padding: 20px;
         border-radius: 15px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         text-decoration: none;
-        color: var(--text-color) !important; /* تثبيت لون النص */
+        color: var(--text-color) !important;
     }
 
     .profile-button:hover {
@@ -172,22 +167,21 @@
 
     .profile-button i {
         font-size: 3em;
-        color: var(--dark-blue) !important; /* تثبيت لون الأيقونات */
+        color: var(--dark-blue) !important;
         margin-bottom: 10px;
     }
 
     .profile-button h3 {
         font-size: 1.5em;
         margin-bottom: 5px;
-        color: var(--dark-green) !important; /* تثبيت لون العناوين */
+        color: var(--dark-green) !important;
     }
 
     .profile-button p {
         font-size: 0.9em;
-        color: #555 !important; /* تثبيت لون النص */
+        color: #555 !important;
     }
 
-    /* Inventory Page Specific */
     .inventory-items {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -197,7 +191,7 @@
     }
 
     .inventory-item {
-        background-color: #ffffff !important; /* تثبيت لون الخلفية */
+        background-color: #ffffff !important;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -206,7 +200,7 @@
 
     .inventory-item h3 {
         margin-bottom: 15px;
-        color: var(--dark-green) !important; /* تثبيت لون العناوين */
+        color: var(--dark-green) !important;
     }
 
     .inventory-item .item-details p {
@@ -235,15 +229,14 @@
         display: block;
         margin-bottom: 3px;
         font-size: 0.8em;
-        color: #666 !important; /* تثبيت لون النص */
+        color: #666 !important;
     }
 
-    /* Print Data Page Specific (Table Styling) */
     .data-table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 30px;
-        margin-bottom: 30px; /* Add some space below tables */
+        margin-bottom: 30px;
     }
 
     .data-table th, .data-table td {
@@ -253,19 +246,18 @@
     }
 
     .data-table th {
-        background-color: var(--dark-blue) !important; /* تثبيت لون الخلفية */
-        color: var(--white) !important; /* تثبيت لون النص */
+        background-color: var(--dark-blue) !important;
+        color: var(--white) !important;
     }
 
     .data-table tr:nth-child(even) {
-        background-color: #f9f9f9 !important; /* تثبيت لون الصفوف الزوجية */
+        background-color: #f9f9f9 !important;
     }
 
     .data-table tr:hover {
-        background-color: #e0e0e0 !important; /* تثبيت لون الخلفية عند الهوفر */
+        background-color: #e0e0e0 !important;
     }
 
-    /* Responsive Table for Mobile */
     @media (max-width: 768px) {
         .container {
             padding: 20px;
@@ -280,30 +272,62 @@
             font-size: 1.5em;
         }
 
-        .profile-button {
-            padding: 15px;
+        body {
+            font-size: 0.9em;
         }
 
-        .profile-button i {
-            font-size: 2.5em;
+        h1 {
+            font-size: 1.8em !important;
+        }
+
+        h2 {
+            font-size: 1.5em !important;
+        }
+
+        .form-group label,
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            font-size: 0.9em !important;
+        }
+
+        button {
+            font-size: 1em !important;
+            padding: 10px 20px;
         }
 
         .profile-button h3 {
-            font-size: 1.3em;
+            font-size: 1.2em !important;
         }
 
-        .inventory-items {
-            grid-template-columns: 1fr;
+        .profile-button p {
+            font-size: 0.8em !important;
         }
 
-        /* تعديلات الجدول للشاشات الصغيرة */
+        .inventory-item h3 {
+            font-size: 1.4em !important;
+        }
+
+        .inventory-item .item-details p {
+            font-size: 0.85em !important;
+        }
+
+        .inventory-item .item-inputs input {
+            font-size: 0.8em !important;
+        }
+
+        .data-table th, .data-table td {
+            font-size: 0.9em !important;
+            padding: 8px !important;
+        }
+
         .data-table, .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
-            display: block; /* جعل كل عناصر الجدول كبلوك */
+            display: block;
         }
 
         .data-table thead tr {
             position: absolute;
-            top: -9999px; /* إخفاء رأس الجدول */
+            top: -9999px;
             left: -9999px;
         }
 
@@ -311,51 +335,98 @@
             border: 1px solid #ccc;
             margin-bottom: 15px;
             display: block;
-            background-color: var(--white) !important; /* تثبيت لون خلفية الصف */
+            background-color: var(--white) !important;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .data-table td {
-            border: none !important; /* إزالة الحدود بين الخلايا */
+            border: none !important;
             border-bottom: 1px solid #eee !important;
             position: relative;
-            padding-left: 50% !important; /* مساحة للعنوان قبل القيمة */
-            text-align: right !important; /* محاذاة النص لليمين */
+            padding-left: 10px !important;
+            text-align: right !important;
             font-size: 1em;
-            word-wrap: break-word; /* منع تجاوز الكلمات الطويلة */
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding-bottom: 10px;
+            padding-top: 10px;
         }
 
         .data-table td:last-child {
-            border-bottom: 0 !important; /* إزالة الحد السفلي للخلية الأخيرة */
+            border-bottom: 0 !important;
         }
 
         .data-table td:before {
-            content: attr(data-label); /* عرض عنوان العمود كـ label */
-            position: absolute;
-            right: 10px;
-            width: 45%;
-            padding-right: 10px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            content: attr(data-label);
+            position: static;
+            width: 100%;
+            padding-right: 0;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
             font-weight: bold;
-            color: var(--dark-blue) !important; /* تثبيت لون عنوان العمود */
+            color: var(--dark-blue) !important;
+            margin-bottom: 5px;
+            text-align: right;
+        }
+        
+        #image-header {
+            font-size: 1.2em !important;
         }
     }
 
-    /* Custom styles for loading and error messages */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .container {
+            width: 90%;
+            padding: 25px;
+        }
+
+        .navbar .brand {
+            font-size: 1.6em;
+        }
+
+        h1 {
+            font-size: 2.2em;
+        }
+        h2 {
+            font-size: 1.8em;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select,
+        button {
+            font-size: 1em;
+            padding: 10px 20px;
+        }
+        .profile-button h3 {
+            font-size: 1.4em;
+        }
+        .inventory-item h3 {
+            font-size: 1.5em;
+        }
+        .data-table th, .data-table td {
+            font-size: 0.95em;
+            padding: 9px;
+        }
+        #image-header {
+            font-size: 1.4em;
+        }
+    }
+
     #loading-message, #error-message, #no-data-message {
         text-align: center;
         margin-top: 50px;
         font-size: 1.2em;
-        color: var(--dark-blue) !important; /* تثبيت اللون */
+        color: var(--dark-blue) !important;
     }
     #error-message {
-        color: var(--dark-red) !important; /* تثبيت اللون */
+        color: var(--dark-red) !important;
     }
     #no-data-message {
-        color: #666 !important; /* تثبيت اللون */
+        color: #666 !important;
     }
     .product-section {
         margin-bottom: 40px;
@@ -370,12 +441,12 @@
     .product-section h2 {
         text-align: right;
         margin-bottom: 15px;
-        color: var(--dark-green) !important; /* تثبيت اللون */
+        color: var(--dark-green) !important;
         font-size: 1.8em;
     }
     .action-buttons {
         margin-top: 20px;
-        margin-bottom: 20px; /* Space below buttons */
+        margin-bottom: 20px;
         display: flex;
         justify-content: center;
         gap: 15px;
@@ -385,14 +456,13 @@
         font-size: 1em;
     }
 
-    /* Styles for the new image header and printable area */
     #printable-area {
-        background-color: var(--white) !important; /* تثبيت اللون */
-        padding: 20px; /* 20px white margin around the tables */
-        border-radius: 15px; /* Match container border-radius */
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Match container shadow */
-        margin-top: 20px; /* Space between buttons and content */
-        width: fit-content; /* Adjust width to content */
+        background-color: var(--white) !important;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        width: fit-content;
         max-width: 90%;
         margin-left: auto;
         margin-right: auto;
@@ -402,12 +472,12 @@
         margin-bottom: 20px;
         font-size: 1.5em;
         font-weight: 700;
-        color: var(--dark-blue) !important; /* تثبيت اللون */
+        color: var(--dark-blue) !important;
         padding: 10px 0;
         border-bottom: 2px solid var(--accent-color);
     }
     #image-header span {
-        color: var(--dark-green) !important; /* تثبيت اللون */
+        color: var(--dark-green) !important;
     }
 </style>
 </head>
@@ -446,21 +516,20 @@
             const spreadsheetId = '1GfKMjGQybK2i8sgVvEaxYkwB9QoZBGy_fIJXDqNXu98';
             const sheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv`;
             const selectedWarehouse = localStorage.getItem('selectedWarehouseForInventory');
-            const whatsappNumber = '+201147182463'; // الرقم الثابت للواتساب
+            const whatsappNumber = '+201147182463';
 
             const loadingMessage = document.getElementById('loading-message');
             const errorMessage = document.getElementById('error-message');
             const noDataMessage = document.getElementById('no-data-message');
-            const inventoryDataContainer = document.getElementById('inventory-data'); // داخل printable-area
-            const printableArea = document.getElementById('printable-area'); // العنصر الكلي للطباعة
+            const inventoryDataContainer = document.getElementById('inventory-data');
+            const printableArea = document.getElementById('printable-area');
             const imageHeader = document.getElementById('image-header');
             const currentDateDisplay = document.getElementById('current-date-display');
             const downloadPngBtn = document.getElementById('download-png-btn');
             const sendWhatsappBtn = document.getElementById('send-whatsapp-btn');
 
-            let filteredInventoryData = []; // لتخزين البيانات المفلترة لاستخدامها في الواتساب
+            let filteredInventoryData = [];
 
-            // تحديث التاريخ الحالي في العنوان
             const today = new Date();
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             currentDateDisplay.textContent = today.toLocaleDateString('ar-EG', options);
@@ -515,12 +584,12 @@
                     }
 
                     const filteredByDateAndWarehouse = filteredByWarehouse.filter(row => {
-                        const rowDate = new Date(row['Inventory_Date'].split(' ')[0]); // Get only date part
+                        const rowDate = new Date(row['Inventory_Date'].split(' ')[0]);
                         return rowDate.toDateString() === latestDate.toDateString();
                     });
 
                     if (filteredByDateAndWarehouse.length === 0) {
-                        noDataMessage.textContent = `لا توجد بيانات للمخزن "${selectedWarehouse}" في تاريخ ${latestDate.toLocaleDateDateString('ar-EG')}.`;
+                        noDataMessage.textContent = `لا توجد بيانات للمخزن "${selectedWarehouse}" في تاريخ ${latestDate.toLocaleDateString('ar-EG')}.`;
                         noDataMessage.style.display = 'block';
                         loadingMessage.style.display = 'none';
                         downloadPngBtn.style.display = 'none';
@@ -528,17 +597,17 @@
                         return;
                     }
 
-                    filteredInventoryData = filteredByDateAndWarehouse; // حفظ البيانات المفلترة
+                    filteredInventoryData = filteredByDateAndWarehouse;
                     displayData(filteredByDateAndWarehouse);
-                    printableArea.style.display = 'block'; // إظهار المنطقة القابلة للطباعة
-                    downloadPngBtn.style.display = 'inline-block'; // إظهار الأزرار بعد تحميل البيانات
+                    printableArea.style.display = 'block';
+                    downloadPngBtn.style.display = 'inline-block';
                     sendWhatsappBtn.style.display = 'inline-block';
 
                 } catch (error) {
                     console.error('Error fetching or processing data:', error);
                     errorMessage.textContent = `حدث خطأ أثناء تحميل البيانات: ${error.message}. يرجى التأكد من أن الرابط صحيح وأن الجدول منشور.`;
                     errorMessage.style.display = 'block';
-                    printableArea.style.display = 'none'; // إخفاء المنطقة في حالة الخطأ
+                    printableArea.style.display = 'none';
                     downloadPngBtn.style.display = 'none';
                     sendWhatsappBtn.style.display = 'none';
                 } finally {
@@ -567,11 +636,10 @@
             function getLatestDate(data) {
                 let latestDate = null;
                 data.forEach(row => {
-                    // Split the date string to ignore time (e.g., "6/26/2025 4:42:20" -> "6/26/2025")
                     const datePart = row['Inventory_Date'] ? row['Inventory_Date'].split(' ')[0] : null;
                     if (datePart) {
                         const currentDate = new Date(datePart);
-                        if (!isNaN(currentDate.getTime())) { // Check if date is valid
+                        if (!isNaN(currentDate.getTime())) {
                             if (!latestDate || currentDate > latestDate) {
                                 latestDate = currentDate;
                             }
@@ -582,7 +650,6 @@
             }
 
             function displayData(data) {
-                // Group data by Inventory_Item_name
                 const groupedByProduct = data.reduce((acc, item) => {
                     const productName = item['Inventory_Item_name'];
                     if (!acc[productName]) {
@@ -592,7 +659,18 @@
                     return acc;
                 }, {});
 
-                inventoryDataContainer.innerHTML = ''; // Clear previous content
+                inventoryDataContainer.innerHTML = '';
+
+                const headersConfig = [
+                    { label: 'تاريخ الجرد', key: 'Inventory_Date', format: (val) => val ? new Date(val.split(' ')[0]).toLocaleDateString('ar-EG') : '' },
+                    { label: 'المخزون الحالي', key: 'Inventory_Existing' },
+                    { label: 'المخزون المضاف اليوم', key: 'Inventory_New' },
+                    { label: 'المخزون المسحوب اليوم', key: 'Inventory_Pull' },
+                    { label: 'مخزون بداية اليوم', key: 'Inventory_Started' },
+                    { label: 'إجمالي الجديد الشهري', key: 'Monthly_Inventory_New' },
+                    { label: 'إجمالي المسحوب الشهري', key: 'Monthly_Inventory_Pull' },
+                    { label: 'سعر المنتج', key: 'Inventory_Item_prise' }
+                ];
 
                 for (const productName in groupedByProduct) {
                     const productData = groupedByProduct[productName];
@@ -608,33 +686,21 @@
 
                     const thead = table.createTHead();
                     const headerRow = thead.insertRow();
-                    const headers = [
-                        'تاريخ الجرد',
-                        'المخزون الحالي',
-                        'المخزون المضاف اليوم',
-                        'المخزون المسحوب اليوم',
-                        'مخزون بداية اليوم',
-                        'إجمالي الجديد الشهري',
-                        'إجمالي المسحوب الشهري',
-                        'سعر المنتج'
-                    ];
-                    headers.forEach(text => {
+                    headersConfig.forEach(headerInfo => {
                         const th = document.createElement('th');
-                        th.textContent = text;
+                        th.textContent = headerInfo.label;
                         headerRow.appendChild(th);
                     });
 
                     const tbody = table.createTBody();
                     productData.forEach(item => {
                         const row = tbody.insertRow();
-                        row.insertCell().textContent = item['Inventory_Date'] ? new Date(item['Inventory_Date'].split(' ')[0]).toLocaleDateString('ar-EG') : '';
-                        row.insertCell().textContent = item['Inventory_Existing'] || '';
-                        row.insertCell().textContent = item['Inventory_New'] || '';
-                        row.insertCell().textContent = item['Inventory_Pull'] || '';
-                        row.insertCell().textContent = item['Inventory_Started'] || '';
-                        row.insertCell().textContent = item['Monthly_Inventory_New'] || '';
-                        row.insertCell().textContent = item['Monthly_Inventory_Pull'] || '';
-                        row.insertCell().textContent = item['Inventory_Item_prise'] || '';
+                        headersConfig.forEach(headerInfo => {
+                            const td = row.insertCell();
+                            td.setAttribute('data-label', headerInfo.label);
+                            const value = item[headerInfo.key] || '';
+                            td.textContent = headerInfo.format ? headerInfo.format(value) : value;
+                        });
                     });
                     productSection.appendChild(table);
                     inventoryDataContainer.appendChild(productSection);
@@ -646,51 +712,42 @@
                 }
             }
 
-            // Function to download as PNG
             downloadPngBtn.addEventListener('click', () => {
-                // Hide main page elements not meant for screenshot
                 document.querySelector('h1').style.display = 'none';
                 document.querySelector('.action-buttons').style.display = 'none';
                 
-                // Show the printable area with its styling
                 printableArea.style.display = 'block'; 
-                printableArea.style.backgroundColor = 'white'; // Ensure background is white for screenshot
-                printableArea.style.padding = '20px'; // Apply the desired padding
+                printableArea.style.backgroundColor = 'white';
+                printableArea.style.padding = '20px';
 
                 html2canvas(printableArea, {
-                    scale: 2, // Increase scale for better quality
-                    useCORS: true, // Enable cross-origin images if any
-                    // Set a fixed background color to ensure white margin
+                    scale: 2,
+                    useCORS: true,
                     backgroundColor: '#ffffff', 
-                    // No need for windowWidth/Height if we capture a specific element
                 }).then(canvas => {
                     const link = document.createElement('a');
                     link.download = `بيانات_مخزون_الرحماني_${selectedWarehouse || 'المخزن'}_${new Date().toLocaleDateString('en-CA')}.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                     
-                    // Restore original display settings
                     document.querySelector('h1').style.display = 'block';
                     document.querySelector('.action-buttons').style.display = 'flex';
-                    // Revert printable area display and styling to default or hidden if no data
                     if (filteredInventoryData.length === 0) {
                         printableArea.style.display = 'none';
                     }
-                    printableArea.style.padding = '0'; // Remove padding after screenshot
+                    printableArea.style.padding = '0';
                 }).catch(error => {
                     console.error('Error generating PNG:', error);
                     alert('حدث خطأ أثناء إنشاء الصورة. يرجى المحاولة مرة أخرى.');
-                    // Restore original display settings even if error
                     document.querySelector('h1').style.display = 'block';
                     document.querySelector('.action-buttons').style.display = 'flex';
                     if (filteredInventoryData.length === 0) {
                         printableArea.style.display = 'none';
                     }
-                    printableArea.style.padding = '0'; // Remove padding after screenshot
+                    printableArea.style.padding = '0';
                 });
             });
 
-            // Function to send via WhatsApp
             sendWhatsappBtn.addEventListener('click', () => {
                 if (filteredInventoryData.length === 0) {
                     alert('لا توجد بيانات لإرسالها عبر واتساب.');
@@ -701,7 +758,6 @@
                 message += `*تاريخ اليوم: ${currentDateDisplay.textContent}*\n`;
                 message += `*بيانات المخزون للمخزن: ${selectedWarehouse || 'غير محدد'}*\n\n`;
 
-                // Group data by Inventory_Item_name for WhatsApp message
                 const groupedForWhatsapp = filteredInventoryData.reduce((acc, item) => {
                     const productName = item['Inventory_Item_name'];
                     if (!acc[productName]) {
@@ -723,9 +779,9 @@
                         message += `  - إجمالي الجديد الشهري: ${item['Monthly_Inventory_New'] || 'غير متاح'}\n`;
                         message += `  - إجمالي المسحوب الشهري: ${item['Monthly_Inventory_Pull'] || 'غير متاح'}\n`;
                         message += `  - سعر المنتج: ${item['Inventory_Item_prise'] || 'غير متاح'}\n`;
-                        message += `\n`; // Add a line break between items of the same product
+                        message += `\n`;
                     });
-                    message += `--------------------\n\n`; // Separator between different products
+                    message += `--------------------\n\n`;
                 }
 
                 const encodedMessage = encodeURIComponent(message);
@@ -740,9 +796,8 @@
         document.addEventListener('DOMContentLoaded', () => {
         const selectedWarehouseForInventory = localStorage.getItem('selectedWarehouseForInventory');
         if (!selectedWarehouseForInventory) {
-            window.location.href = './../index.html'; // إعادة التوجيه إلى صفحة تسجيل الدخول إذا لم يكن هناك اسم مستخدم
+            window.location.href = './../index.html';
         } else {
-            document.getElementById('selectedWarehouseForInventory').textContent = selectedWarehouseForInventory;
         }
         });
     </script>
