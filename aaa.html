@@ -1,113 +1,567 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حذف بيانات المخزن</title>
+    <title>The Rahmany - إدارة الجرد</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+        /* CSS from your original style.css and specific styles, combined here */
+        :root {
+            --primary-bg: #f9f9f9;
+            --secondary-bg: #e0e0e0;
+            --light-bg-card: #ffffff;
+            --dark-main: #2196F3; /* Blue */
+            --secondary-accent: #4CAF50; /* Green */
+            --text-color: #333;
+            --light-text-color: #757575;
+            --border-color: #ddd;
+            --error-color: #dc3545; /* Red */
         }
-        h1 {
-            color: #d32f2f;
-            text-align: center;
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--primary-bg);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            direction: rtl; /* Right-to-left for Arabic */
+            text-align: right; /* Align text to the right */
         }
         .container {
-            background-color: white;
+            max-width: 900px;
+            margin: 20px auto;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: var(--light-bg-card);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: var(--dark-main);
+            text-align: center;
+            margin-bottom: 25px;
         }
         .form-group {
             margin-bottom: 15px;
         }
-        label {
+        .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: bold;
+            color: var(--light-text-color);
         }
-        input[type="text"] {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: calc(100% - 20px); /* Adjust for padding */
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            direction: rtl;
+            text-align: right;
+            box-sizing: border-box; /* Include padding in width */
         }
         button {
-            background-color: #d32f2f;
+            background-color: var(--dark-main);
             color: white;
+            padding: 12px 25px;
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
             width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
         }
         button:hover {
-            background-color: #b71c1c;
+            background-color: #1976D2; /* Darker blue */
         }
-        #result {
-            margin-top: 15px;
+        button:disabled {
+            background-color: #A7D7F9;
+            cursor: not-allowed;
+        }
+
+        /* Specific styles for this page */
+        .item-inventory-section {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .item-card {
+            background-color: var(--light-bg-card);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-align: right;
+            border: 1px solid var(--border-color);
+        }
+        .item-card h3 {
+            color: var(--secondary-accent);
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .item-card p {
+            font-size: 0.9em;
+            color: #616161;
+            margin-bottom: 10px;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--dark-main);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #submitAllInventory {
+            margin-top: 30px;
+            width: 100%;
+        }
+        .message {
+            margin-top: 20px;
             padding: 10px;
-            border-radius: 4px;
-            display: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
         }
-        .success {
-            background-color: #dff0d8;
-            color: #3c763d;
-            display: block;
+        .message.success {
+            background-color: #D4EDDA;
+            color: #155724;
+            border: 1px solid #C3E6CB;
         }
-        .error {
-            background-color: #f2dede;
-            color: #a94442;
-            display: block;
+        .message.error {
+            background-color: #F8D7DA;
+            color: #721C24;
+            border: 1px solid #F5C6CB;
+        }
+        .message.info {
+            background-color: #CCE5FF;
+            color: #004085;
+            border: 1px solid #B8DAFF;
+        }
+
+        /* Styles for the Delete Section */
+        #deleteSection {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid var(--border-color);
+        }
+        #deleteSection h2 {
+            color: var(--error-color);
+            margin-bottom: 25px;
+        }
+        #deleteSection button {
+            background-color: var(--error-color);
+            margin-top: 15px;
+        }
+        #deleteSection button:hover {
+            background-color: #c82333;
+        }
+        #deleteSection button:disabled {
+            background-color: #F0A7B0;
+        }
+        .delete-option {
+            background-color: var(--secondary-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .delete-option label {
+            color: var(--text-color);
+        }
+        #itemRowIndexToDelete, #warehouseValueToDelete {
+            background-color: var(--light-bg-card);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>حذف بيانات المخزن</h1>
-        <div class="form-group">
-            <label for="warehouseValue">قيمة المخزن المراد حذف بياناته:</label>
-            <input type="text" id="warehouseValue" placeholder="أدخل قيمة المخزن">
+        <h1>إدارة الجرد اليومي للعناصر</h1>
+
+        <h2 id="currentWarehouseDisplay" style="text-align: center; color: var(--dark-main); margin-bottom: 25px;"></h2>
+
+        <div id="loadingIndicator" class="loader" style="display: none;"></div>
+        <div id="errorMessage" class="message error" style="display: none;"></div>
+
+        <div id="itemInventorySection" class="item-inventory-section">
+            </div>
+
+        <button id="submitAllInventory">تسجيل جرد العناصر المحددة</button>
+        <div id="statusMessage" class="message" style="display: none;"></div>
+
+        <div id="deleteSection">
+            <h2>إجراءات الحذف</h2>
+
+            <div class="delete-option">
+                <h3>حذف صف محدد</h3>
+                <div class="form-group">
+                    <label for="itemRowIndexToDelete">رقم الصف المراد حذفه (الرجاء التأكد جيداً):</label>
+                    <input type="number" id="itemRowIndexToDelete" placeholder="مثال: 5">
+                </div>
+                <div class="form-group">
+                    <label for="expectedWarehouseForDelete">المخزن المتوقع في هذا الصف (للتأكد):</label>
+                    <input type="text" id="expectedWarehouseForDelete" placeholder="مثال: شبرا">
+                </div>
+                <button id="deleteSpecificRowButton">حذف هذا الصف</button>
+                <div id="deleteSpecificRowMessage" class="message" style="display: none;"></div>
+            </div>
+
+            <div class="delete-option">
+                <h3>حذف كل الصفوف لمخزن معين</h3>
+                <div class="form-group">
+                    <label for="warehouseValueToDelete">أدخل اسم المخزن لحذف جميع بياناته (الرجاء التأكد جيداً):</label>
+                    <input type="text" id="warehouseValueToDelete" placeholder="مثال: المخزن أ">
+                </div>
+                <button id="deleteByWarehouseButton">حذف جميع بيانات هذا المخزن</button>
+                <div id="deleteByWarehouseMessage" class="message" style="display: none;"></div>
+            </div>
         </div>
-        <button onclick="deleteData()">حذف البيانات</button>
-        <div id="result"></div>
     </div>
 
     <script>
-        function deleteData() {
-            const warehouseValue = document.getElementById('warehouseValue').value;
-            const resultDiv = document.getElementById('result');
-            
-            if (!warehouseValue) {
-                resultDiv.className = 'error';
-                resultDiv.textContent = 'يجب إدخال قيمة المخزن';
+        // ** هام: استبدل هذا بعنوان Web App URL الخاص بك والذي يشغل كل الدوال (GET, POST, DELETE) **
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyT-aH-Lv8Abq4H_uups4UQ8580sBtaG-7X5JIRuZfBEhYBfjyJuDw4XSnQlKibahA9/exec'; 
+
+        const itemInventorySection = document.getElementById('itemInventorySection');
+        const submitAllInventoryButton = document.getElementById('submitAllInventory');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorMessageDiv = document.getElementById('errorMessage');
+        const statusMessageDiv = document.getElementById('statusMessage');
+        const currentWarehouseDisplay = document.getElementById('currentWarehouseDisplay');
+
+        // Delete elements
+        const itemRowIndexToDeleteInput = document.getElementById('itemRowIndexToDelete');
+        const expectedWarehouseForDeleteInput = document.getElementById('expectedWarehouseForDelete');
+        const deleteSpecificRowButton = document.getElementById('deleteSpecificRowButton');
+        const deleteSpecificRowMessageDiv = document.getElementById('deleteSpecificRowMessage');
+
+        const warehouseValueToDeleteInput = document.getElementById('warehouseValueToDelete');
+        const deleteByWarehouseButton = document.getElementById('deleteByWarehouseButton');
+        const deleteByWarehouseMessageDiv = document.getElementById('deleteByWarehouseMessage');
+
+        let allFetchedItems = []; // To store all items fetched from the item details sheet
+
+        // Function to set and get the selected warehouse from localStorage
+        function getSelectedWarehouse() {
+            return localStorage.getItem('selectedWarehouseForInventory') || '';
+        }
+
+        // Helper to display messages
+        function displayMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+        }
+
+        // Initialize warehouse display and load items on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const selectedWarehouse = getSelectedWarehouse();
+            if (!selectedWarehouse) {
+                // If no warehouse is selected, redirect to profile page or show a message
+                currentWarehouseDisplay.textContent = 'الرجاء تحديد مخزن في صفحة البروفايل أولاً.';
+                itemInventorySection.innerHTML = '<p style="text-align: center; color: #757575;">الرجاء اختيار مخزن في صفحة البروفايل لعرض العناصر.</p>';
+                loadingIndicator.style.display = 'none';
+                // Optional: window.location.href = './../index.html'; // Or your profile/login page
+                return;
+            } else {
+                currentWarehouseDisplay.textContent = `جرد مخزن: ${selectedWarehouse}`;
+            }
+
+            await fetchAndDisplayItems(); // Fetch and display items based on selected warehouse from localStorage
+
+            submitAllInventoryButton.addEventListener('click', handleSubmitAllInventory);
+            deleteSpecificRowButton.addEventListener('click', handleDeleteSpecificRow);
+            deleteByWarehouseButton.addEventListener('click', handleDeleteByWarehouse);
+        });
+
+        // --- Fetching and Displaying Items (GET operation) ---
+        async function fetchAndDisplayItems() {
+            loadingIndicator.style.display = 'block';
+            errorMessageDiv.style.display = 'none';
+            itemInventorySection.innerHTML = ''; // Clear previous items
+            statusMessageDiv.style.display = 'none'; // Clear status message
+
+            const selectedWarehouse = getSelectedWarehouse();
+            if (!selectedWarehouse) {
+                loadingIndicator.style.display = 'none';
+                return; // Message already displayed
+            }
+
+            try {
+                // Fetch all items from the inventory sheet (using the unified WEB_APP_URL for GET)
+                const response = await fetch(`${WEB_APP_URL}?action=getAllInventoryData`, {
+                    method: 'GET',
+                    // mode: 'cors' is default and preferred, 'no-cors' for specific scenarios but has limitations
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.status === "success" && result.data) {
+                    allFetchedItems = result.data; // Store all fetched items
+                    renderFilteredItems(allFetchedItems, selectedWarehouse);
+                } else {
+                    displayMessage(errorMessageDiv, result.message || 'خطأ في تحميل بيانات العناصر.', 'error');
+                }
+            } catch (error) {
+                console.error('Error fetching inventory data:', error);
+                displayMessage(errorMessageDiv, `حدث خطأ أثناء تحميل بيانات الجرد: ${error.message}`, 'error');
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        function renderFilteredItems(items, warehouseFilter) {
+            itemInventorySection.innerHTML = '';
+            // Filter based on 'Inventory_Item_warehouse' column in the fetched data
+            // We need to filter unique items for input forms.
+            const uniqueItems = {};
+            items.forEach(item => {
+                // Only consider items for the selected warehouse
+                if (item.Inventory_Item_warehouse === warehouseFilter) {
+                    // Store the latest record for each item name
+                    if (!uniqueItems[item.Inventory_Item_name] || item.rowIndex > uniqueItems[item.Inventory_Item_name].rowIndex) {
+                        uniqueItems[item.Inventory_Item_name] = item;
+                    }
+                }
+            });
+
+            const filteredItemsForDisplay = Object.values(uniqueItems); // Get array of unique, latest items
+
+            if (filteredItemsForDisplay.length === 0) {
+                itemInventorySection.innerHTML = '<p style="text-align: center; color: #757575;">لا توجد عناصر لهذا المخزن في الجرد الحالي. أضف عناصر جديدة أو اختر مخزنًا آخر.</p>';
                 return;
             }
 
-            const url = 'https://script.google.com/macros/s/AKfycbxq4WT2CKe4OLvRSoZn2t7P8DcqFTResZ-USNYu-WMicwD1xoDSsSCtJVyqO43Umj79/exec';
-            
-            fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ warehouseValue: warehouseValue }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                resultDiv.className = data.status === 'success' ? 'success' : 'error';
-                resultDiv.textContent = data.message;
-            })
-            .catch(error => {
-                resultDiv.className = 'error';
-                resultDiv.textContent = 'حدث خطأ أثناء الاتصال بالسيرفر: ' + error.message;
+            filteredItemsForDisplay.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.classList.add('item-card');
+                itemCard.innerHTML = `
+                    <h3>${item.Inventory_Item_name}</h3>
+                    <p>السعر: ${item.Inventory_Item_prise || 'غير محدد'}</p>
+                    <p>المخزن: ${item.Inventory_Item_warehouse}</p>
+                    <p>المخزون الحالي (آخر جرد): ${item.Inventory_Existing || 0}</p>
+                    <div class="form-group">
+                        <label for="newStock-${item.Inventory_Item_name.replace(/\s+/g, '-')}-input">المخزون الجديد المضاف:</label>
+                        <input type="number" id="newStock-${item.Inventory_Item_name.replace(/\s+/g, '-')}-input" 
+                               data-item-name="${item.Inventory_Item_name}" 
+                               data-item-price="${item.Inventory_Item_prise}" 
+                               data-item-warehouse="${item.Inventory_Item_warehouse}"
+                               data-stock-type="new" step="1" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="pullStock-${item.Inventory_Item_name.replace(/\s+/g, '-')}-input">المخزون المسحوب:</label>
+                        <input type="number" id="pullStock-${item.Inventory_Item_name.replace(/\s+/g, '-')}-input" 
+                               data-item-name="${item.Inventory_Item_name}" 
+                               data-item-price="${item.Inventory_Item_prise}" 
+                               data-item-warehouse="${item.Inventory_Item_warehouse}"
+                               data-stock-type="pull" step="1" value="0">
+                    </div>
+                `;
+                itemInventorySection.appendChild(itemCard);
             });
+        }
+
+        // --- Submitting Inventory Updates (POST operation) ---
+        async function handleSubmitAllInventory() {
+            statusMessageDiv.style.display = 'none';
+            errorMessageDiv.style.display = 'none';
+            const itemCards = itemInventorySection.querySelectorAll('.item-card');
+            const updates = [];
+
+            itemCards.forEach(card => {
+                const newStockInput = card.querySelector('input[data-stock-type="new"]');
+                const pullStockInput = card.querySelector('input[data-stock-type="pull"]');
+
+                const itemName = newStockInput.dataset.itemName;
+                const itemPrice = parseFloat(newStockInput.dataset.itemPrice); // Use actual dataset value
+                const itemWarehouse = newStockInput.dataset.itemWarehouse;
+                const newStockValue = parseFloat(newStockInput.value) || 0;
+                const pullStockValue = parseFloat(pullStockInput.value) || 0;
+
+                // Only add to updates if there's a non-zero change
+                if (newStockValue !== 0 || pullStockValue !== 0) {
+                    updates.push({
+                        itemName: itemName,
+                        itemPrice: itemPrice,
+                        itemWarehouse: itemWarehouse,
+                        newStockInput: newStockValue,
+                        pullStockInput: pullStockValue
+                    });
+                }
+            });
+
+            if (updates.length === 0) {
+                displayMessage(statusMessageDiv, 'لا توجد تحديثات لتسجيلها.', 'info');
+                return;
+            }
+
+            loadingIndicator.style.display = 'block';
+            submitAllInventoryButton.disabled = true;
+
+            let successCount = 0;
+            let errorCount = 0;
+            const errors = [];
+
+            for (const update of updates) {
+                try {
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(update)
+                    });
+
+                    const result = await response.json(); // Parse JSON response
+
+                    if (result.status === "success") {
+                        successCount++;
+                        // Optionally reset inputs for this item after successful submission
+                        document.getElementById(`newStock-${update.itemName.replace(/\s+/g, '-')}-input`).value = '0';
+                        document.getElementById(`pullStock-${update.itemName.replace(/\s+/g, '-')}-input`).value = '0';
+                    } else {
+                        errorCount++;
+                        errors.push(`${update.itemName}: ${result.message}`);
+                        console.error(`Error processing update for ${update.itemName}:`, result.message);
+                    }
+                } catch (error) {
+                    console.error(`Network or parse error updating inventory for ${update.itemName}:`, error);
+                    errorCount++;
+                    errors.push(`${update.itemName} (خطأ شبكة/تحليل)`);
+                }
+            }
+
+            loadingIndicator.style.display = 'none';
+            submitAllInventoryButton.disabled = false;
+
+            if (errorCount === 0) {
+                displayMessage(statusMessageDiv, `تم تسجيل جرد ${successCount} عنصر بنجاح!`, 'success');
+                // Re-fetch data to update current stock display after submission
+                await fetchAndDisplayItems(); 
+            } else {
+                displayMessage(statusMessageDiv, `تم تسجيل جرد ${successCount} عنصر بنجاح، وحدث خطأ في تسجيل ${errorCount} عنصر: ${errors.join(', ')}. تحقق من الكونسول للمزيد من التفاصيل.`, 'error');
+            }
+        }
+
+        // --- Delete Operations (DELETE requests) ---
+
+        async function handleDeleteSpecificRow() {
+            deleteSpecificRowMessageDiv.style.display = 'none';
+            const rowIndex = parseInt(itemRowIndexToDeleteInput.value);
+            const expectedWarehouse = expectedWarehouseForDeleteInput.value.trim();
+
+            if (isNaN(rowIndex) || rowIndex < 2) {
+                displayMessage(deleteSpecificRowMessageDiv, 'الرجاء إدخال رقم صف صحيح (أكبر من 1).', 'error');
+                return;
+            }
+            if (!expectedWarehouse) {
+                displayMessage(deleteSpecificRowMessageDiv, 'الرجاء إدخال اسم المخزن للتأكد.', 'error');
+                return;
+            }
+
+            if (!confirm(`هل أنت متأكد من حذف الصف رقم ${rowIndex} للمخزن ${expectedWarehouse}؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
+                return;
+            }
+
+            loadingIndicator.style.display = 'block';
+            deleteSpecificRowButton.disabled = true;
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: "deleteSpecificRow",
+                        rowIndex: rowIndex,
+                        expectedWarehouse: expectedWarehouse
+                    })
+                });
+
+                const result = await response.json();
+                if (result.status === "success") {
+                    displayMessage(deleteSpecificRowMessageDiv, result.message, 'success');
+                    itemRowIndexToDeleteInput.value = ''; // Clear input
+                    expectedWarehouseForDeleteInput.value = ''; // Clear input
+                    await fetchAndDisplayItems(); // Refresh displayed items
+                } else if (result.status === "info" || result.status === "skipped") {
+                    displayMessage(deleteSpecificRowMessageDiv, result.message, 'info');
+                }
+                else {
+                    displayMessage(deleteSpecificRowMessageDiv, `خطأ في الحذف: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting specific row:', error);
+                displayMessage(deleteSpecificRowMessageDiv, `حدث خطأ أثناء حذف الصف: ${error.message}`, 'error');
+            } finally {
+                loadingIndicator.style.display = 'none';
+                deleteSpecificRowButton.disabled = false;
+            }
+        }
+
+        async function handleDeleteByWarehouse() {
+            deleteByWarehouseMessageDiv.style.display = 'none';
+            const warehouseValue = warehouseValueToDeleteInput.value.trim();
+
+            if (!warehouseValue) {
+                displayMessage(deleteByWarehouseMessageDiv, 'الرجاء إدخال اسم المخزن المراد حذف بياناته بالكامل.', 'error');
+                return;
+            }
+
+            if (!confirm(`هل أنت متأكد تمامًا من حذف كل بيانات مخزن "${warehouseValue}"؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
+                return;
+            }
+
+            loadingIndicator.style.display = 'block';
+            deleteByWarehouseButton.disabled = true;
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: "deleteByWarehouse",
+                        warehouseValue: warehouseValue
+                    })
+                });
+
+                const result = await response.json();
+                if (result.status === "success") {
+                    displayMessage(deleteByWarehouseMessageDiv, result.message, 'success');
+                    warehouseValueToDeleteInput.value = ''; // Clear input
+                    await fetchAndDisplayItems(); // Refresh displayed items
+                } else if (result.status === "info") {
+                    displayMessage(deleteByWarehouseMessageDiv, result.message, 'info');
+                }
+                else {
+                    displayMessage(deleteByWarehouseMessageDiv, `خطأ في الحذف: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting by warehouse:', error);
+                displayMessage(deleteByWarehouseMessageDiv, `حدث خطأ أثناء حذف بيانات المخزن: ${error.message}`, 'error');
+            } finally {
+                loadingIndicator.style.display = 'none';
+                deleteByWarehouseButton.disabled = false;
+            }
         }
     </script>
 </body>
