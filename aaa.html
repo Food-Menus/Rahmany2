@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حذف بيانات المخزن</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #d32f2f;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #b71c1c;
+        }
+        #result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            display: block;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>حذف بيانات المخزن</h1>
+        <div class="form-group">
+            <label for="warehouseValue">قيمة المخزن المراد حذف بياناته:</label>
+            <input type="text" id="warehouseValue" placeholder="أدخل قيمة المخزن">
+        </div>
+        <button onclick="deleteData()">حذف البيانات</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function deleteData() {
+            const warehouseValue = document.getElementById('warehouseValue').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!warehouseValue) {
+                resultDiv.className = 'error';
+                resultDiv.textContent = 'يجب إدخال قيمة المخزن';
+                return;
+            }
+
+            const url = 'https://script.google.com/macros/s/AKfycbxq4WT2CKe4OLvRSoZn2t7P8DcqFTResZ-USNYu-WMicwD1xoDSsSCtJVyqO43Umj79/exec';
+            
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ warehouseValue: warehouseValue }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultDiv.className = data.status === 'success' ? 'success' : 'error';
+                resultDiv.textContent = data.message;
+            })
+            .catch(error => {
+                resultDiv.className = 'error';
+                resultDiv.textContent = 'حدث خطأ أثناء الاتصال بالسيرفر: ' + error.message;
+            });
+        }
+    </script>
+</body>
+</html>
