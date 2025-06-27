@@ -668,8 +668,8 @@
                     { label: 'المخزون المسحوب اليوم', key: 'Inventory_Pull' },
                     { label: 'مخزون بداية اليوم', key: 'Inventory_Started' },
                     { label: 'إجمالي الجديد الشهري', key: 'Monthly_Inventory_New' },
-                    { label: 'إجمالي المسحوب الشهري', key: 'Monthly_Inventory_Pull' },
-                    { label: 'سعر المنتج', key: 'Inventory_Item_prise' }
+                    { label: 'إجمالي المسحوب الشهري', key: 'Monthly_Inventory_Pull' }
+                    // تم إزالة السطر الخاص بسعر المنتج من هنا
                 ];
 
                 for (const productName in groupedByProduct) {
@@ -778,7 +778,7 @@
                         message += `  - مخزون بداية اليوم: ${item['Inventory_Started'] || 'غير متاح'}\n`;
                         message += `  - إجمالي الجديد الشهري: ${item['Monthly_Inventory_New'] || 'غير متاح'}\n`;
                         message += `  - إجمالي المسحوب الشهري: ${item['Monthly_Inventory_Pull'] || 'غير متاح'}\n`;
-                        message += `  - سعر المنتج: ${item['Inventory_Item_prise'] || 'غير متاح'}\n`;
+                        // تم إزالة السطر الخاص بسعر المنتج من هنا
                         message += `\n`;
                     });
                     message += `--------------------\n\n`;
