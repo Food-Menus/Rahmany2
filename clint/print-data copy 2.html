@@ -562,23 +562,6 @@
             <h3>عرض الأعمدة:</h3>
             <div id="column-checkboxes" class="checkbox-group">
                 </div>
-            ---
-            <h3>وضع العرض:</h3>
-            <div class="checkbox-group">
-                <div class="checkbox-item">
-                    <input type="radio" id="display-mode-summary" name="displayMode" value="summary" checked>
-                    <label for="display-mode-summary">عرض الملخص (صف واحد للمنتج)</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="radio" id="display-mode-all" name="displayMode" value="all">
-                    <label for="display-mode-all">عرض جميع التحديثات (صفوف متعددة للمنتج)</label>
-                </div>
-            </div>
-            ---
-            <h3 id="product-filter-title" style="display: none;">تحديد المنتجات للعرض:</h3>
-            <div id="product-checkboxes" class="checkbox-group" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
-                </div>
-            
             <button id="apply-columns-btn">تطبيق التغييرات</button>
         </div>
         <div class="action-buttons">
@@ -622,28 +605,20 @@
             const sendWhatsappBtn = document.getElementById('send-whatsapp-btn');
             const columnCheckboxesContainer = document.getElementById('column-checkboxes');
             const applyColumnsBtn = document.getElementById('apply-columns-btn');
-            const displayModeSummaryRadio = document.getElementById('display-mode-summary');
-            const displayModeAllRadio = document.getElementById('display-mode-all');
-            const productCheckboxesContainer = document.getElementById('product-checkboxes');
-            const productFilterTitle = document.getElementById('product-filter-title');
 
-
-            let allRawData = []; // Store all fetched raw data
-            let latestDateFilteredData = []; // Data filtered by warehouse and latest date (raw, not summarized)
-            let summarizedInventoryData = []; // Data after summarization for the 'summary' view
-            let currentDisplayMode = 'summary'; // Default display mode
+            let allInventoryData = []; // Store all fetched data to re-filter
+            let summarizedInventoryData = []; // Data after summarization for display
 
             // Define all possible headers and their configurations
+            // Added 'aggregationType' to define how each column should be processed
             const allHeadersConfig = [
-                { label: 'اسم المنتج', key: 'Inventory_Item_name', defaultVisible: true }, // No need for isDisplayKey here
-                { label: 'المخزن', key: 'Inventory_Item_warehouse', defaultVisible: false },
                 { label: 'تاريخ الجرد', key: 'Inventory_Date', format: (val) => val ? new Date(val.split(' ')[0]).toLocaleDateString('ar-EG') : '', defaultVisible: true, aggregationType: 'latest' },
-                { label: 'المخزون الحالي', key: 'Inventory_Existing', defaultVisible: true, aggregationType: 'latest' },
-                { label: 'المخزون المضاف اليوم', key: 'Inventory_New', defaultVisible: true, aggregationType: 'sum' },
-                { label: 'المخزون المسحوب اليوم', key: 'Inventory_Pull', defaultVisible: true, aggregationType: 'sum' },
-                { label: 'مخزون بداية اليوم', key: 'Inventory_Started', defaultVisible: true, aggregationType: 'first' },
-                { label: 'إجمالي الجديد الشهري', key: 'Monthly_Inventory_New', defaultVisible: true, aggregationType: 'latest' },
-                { label: 'إجمالي المسحوب الشهري', key: 'Monthly_Inventory_Pull', defaultVisible: true, aggregationType: 'latest' }
+                { label: 'المخزون الحالي', key: 'Inventory_Existing', defaultVisible: true, aggregationType: 'latest' }, // احدث قيمة
+                { label: 'المخزون المضاف اليوم', key: 'Inventory_New', defaultVisible: true, aggregationType: 'sum' }, // جمع
+                { label: 'المخزون المسحوب اليوم', key: 'Inventory_Pull', defaultVisible: true, aggregationType: 'sum' }, // جمع
+                { label: 'مخزون بداية اليوم', key: 'Inventory_Started', defaultVisible: true, aggregationType: 'first' }, // اول قيمة
+                { label: 'إجمالي الجديد الشهري', key: 'Monthly_Inventory_New', defaultVisible: true, aggregationType: 'latest' }, // احدث قيمة
+                { label: 'إجمالي المسحوب الشهري', key: 'Monthly_Inventory_Pull', defaultVisible: true, aggregationType: 'latest' } // احدث قيمة
             ];
 
             const today = new Date();
@@ -681,71 +656,17 @@
                     checkboxItem.appendChild(label);
                     columnCheckboxesContainer.appendChild(checkboxItem);
                 });
-
-                // Load saved display mode
-                currentDisplayMode = localStorage.getItem('displayMode') || 'summary';
-                if (currentDisplayMode === 'summary') {
-                    displayModeSummaryRadio.checked = true;
-                } else {
-                    displayModeAllRadio.checked = true;
-                }
             }
 
-            // Initialize product checkboxes based on fetched data
-            function initializeProductControls(products) {
-                productCheckboxesContainer.innerHTML = ''; // Clear previous checkboxes
-                let savedProductVisibility = JSON.parse(localStorage.getItem('productVisibility')) || {};
-
-                if (products.length > 0) {
-                    productFilterTitle.style.display = 'block';
-                } else {
-                    productFilterTitle.style.display = 'none';
-                }
-
-                products.forEach(productName => {
-                    const checkboxItem = document.createElement('div');
-                    checkboxItem.classList.add('checkbox-item');
-
-                    const input = document.createElement('input');
-                    input.type = 'checkbox';
-                    input.id = `product-${productName.replace(/[^a-zA-Z0-9]/g, '_')}`; // Sanitize ID for product name
-                    input.dataset.productName = productName;
-                    input.checked = (savedProductVisibility[productName] !== undefined) ? savedProductVisibility[productName] : true; // Default to visible
-                    
-                    const label = document.createElement('label');
-                    label.htmlFor = `product-${productName.replace(/[^a-zA-Z0-9]/g, '_')}`;
-                    label.textContent = productName;
-
-                    checkboxItem.appendChild(input);
-                    checkboxItem.appendChild(label);
-                    productCheckboxesContainer.appendChild(checkboxItem);
-                });
-            }
-
-            // Save preferences and refresh data
+            // Save column preferences and refresh data
             applyColumnsBtn.addEventListener('click', () => {
-                // Save column visibility
                 const checkboxes = columnCheckboxesContainer.querySelectorAll('input[type="checkbox"]');
                 let currentColumnVisibility = {};
                 checkboxes.forEach(checkbox => {
                     currentColumnVisibility[checkbox.dataset.key] = checkbox.checked;
                 });
                 localStorage.setItem('columnVisibility', JSON.stringify(currentColumnVisibility));
-
-                // Save display mode
-                currentDisplayMode = document.querySelector('input[name="displayMode"]:checked').value;
-                localStorage.setItem('displayMode', currentDisplayMode);
-
-                // Save product visibility
-                const productCheckboxes = productCheckboxesContainer.querySelectorAll('input[type="checkbox"]');
-                let currentProductVisibility = {};
-                productCheckboxes.forEach(checkbox => {
-                    currentProductVisibility[checkbox.dataset.productName] = checkbox.checked;
-                });
-                localStorage.setItem('productVisibility', JSON.stringify(currentProductVisibility));
-
-                // Re-display data with new preferences
-                processAndDisplayData(); 
+                displayData(summarizedInventoryData); // Re-display data with new column preferences
             });
 
             async function fetchAndProcessData() {
@@ -755,9 +676,9 @@
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     const csvText = await response.text();
-                    allRawData = parseCSV(csvText); // Store all raw data
+                    allInventoryData = parseCSV(csvText); // Store all data
 
-                    if (allRawData.length === 0) {
+                    if (allInventoryData.length === 0) {
                         noDataMessage.textContent = 'لا توجد بيانات في الجدول.';
                         noDataMessage.style.display = 'block';
                         loadingMessage.style.display = 'none';
@@ -766,7 +687,7 @@
                         return;
                     }
 
-                    const filteredByWarehouse = allRawData.filter(row => row['Inventory_Item_warehouse'] === selectedWarehouse);
+                    const filteredByWarehouse = allInventoryData.filter(row => row['Inventory_Item_warehouse'] === selectedWarehouse);
 
                     if (filteredByWarehouse.length === 0) {
                         noDataMessage.textContent = `لا توجد بيانات للمخزن "${selectedWarehouse}" في الجدول.`;
@@ -788,13 +709,12 @@
                         return;
                     }
 
-                    // Store raw data filtered by latest date for 'all' view
-                    latestDateFilteredData = filteredByWarehouse.filter(row => {
-                        const rowDate = row['Inventory_Date'] ? new Date(row['Inventory_Date'].split(' ')[0]) : null;
-                        return rowDate && rowDate.toDateString() === latestDate.toDateString();
+                    const dataForLatestDate = filteredByWarehouse.filter(row => {
+                        const rowDate = new Date(row['Inventory_Date'].split(' ')[0]);
+                        return rowDate.toDateString() === latestDate.toDateString();
                     });
 
-                    if (latestDateFilteredData.length === 0) {
+                    if (dataForLatestDate.length === 0) {
                         noDataMessage.textContent = `لا توجد بيانات للمخزن "${selectedWarehouse}" في تاريخ ${latestDate.toLocaleDateString('ar-EG')}.`;
                         noDataMessage.style.display = 'block';
                         loadingMessage.style.display = 'none';
@@ -803,16 +723,10 @@
                         return;
                     }
                     
-                    // Extract unique product names to populate product checkboxes from the latestDateFilteredData
-                    const uniqueProducts = [...new Set(latestDateFilteredData.map(item => item['Inventory_Item_name']))].sort();
-                    initializeProductControls(uniqueProducts);
+                    // Summarize data before displaying
+                    summarizedInventoryData = summarizeProductData(dataForLatestDate);
 
-                    // Summarize data for the 'summary' view (only once after fetching raw data)
-                    summarizedInventoryData = summarizeProductData(latestDateFilteredData);
-
-                    // Process and display data based on current preferences
-                    processAndDisplayData();
-
+                    displayData(summarizedInventoryData); // Initial display
                     printableArea.style.display = 'block';
                     downloadPngBtn.style.display = 'inline-block';
                     sendWhatsappBtn.style.display = 'inline-block';
@@ -863,13 +777,15 @@
                 return latestDate;
             }
 
-            // Summarizes product data based on aggregation type
+            // NEW FUNCTION: Summarizes product data based on aggregation type
             function summarizeProductData(data) {
                 const summarized = {};
 
                 // Sort data by Inventory_Date (ascending) to correctly get 'first' and 'latest' values
-                // This sorting is crucial for correct 'first' and 'latest' aggregations
+                // This assumes that if multiple records have the same date, their order doesn't matter for 'first'/'latest' among them.
+                // If time is also part of Inventory_Date, you might need to parse it for more precise sorting.
                 data.sort((a, b) => new Date(a['Inventory_Date'].split(' ')[0]) - new Date(b['Inventory_Date'].split(' ')[0]));
+
 
                 data.forEach(item => {
                     const productName = item['Inventory_Item_name'];
@@ -886,7 +802,7 @@
                             if (header.aggregationType === 'sum') {
                                 summarized[productName][header.key] = 0;
                             } else {
-                                summarized[productName][header.key] = null; // Use null for initial state to properly capture 'first'
+                                summarized[productName][header.key] = null; // Or empty string, depending on desired default
                             }
                         });
                     }
@@ -911,8 +827,7 @@
                                 }
                                 break;
                             default:
-                                // For fields without a defined aggregationType (like Inventory_Item_name, Inventory_Item_warehouse),
-                                // we'll just take the value from the current item. For these, it's typically the same for all records.
+                                // For non-defined or non-numeric types, just take the latest value for simplicity
                                 summarized[productName][header.key] = value;
                                 break;
                         }
@@ -925,48 +840,10 @@
                 return Object.values(summarized);
             }
 
-            function getVisibleColumns() {
-                const checkboxes = columnCheckboxesContainer.querySelectorAll('input[type="checkbox"]');
-                let visibleKeys = [];
-                checkboxes.forEach(checkbox => {
-                    if (checkbox.checked) {
-                        visibleKeys.push(checkbox.dataset.key);
-                    }
-                });
-                return allHeadersConfig.filter(header => visibleKeys.includes(header.key));
-            }
-
-            function getSelectedProducts() {
-                const productCheckboxes = productCheckboxesContainer.querySelectorAll('input[type="checkbox"]');
-                let selectedProducts = new Set();
-                productCheckboxes.forEach(checkbox => {
-                    if (checkbox.checked) {
-                        selectedProducts.add(checkbox.dataset.productName);
-                    }
-                });
-                return selectedProducts;
-            }
-
-            // Central function to process and display data based on current mode and selections
-            function processAndDisplayData() {
-                inventoryDataContainer.innerHTML = ''; // Clear previous data
-
-                const visibleColumns = getVisibleColumns();
-                const selectedProducts = getSelectedProducts();
-                let dataForDisplay = [];
-
-                if (currentDisplayMode === 'summary') {
-                    // Filter the already summarized data by selected products
-                    dataForDisplay = summarizedInventoryData.filter(product => selectedProducts.has(product['Inventory_Item_name']));
-                } else { // 'all' mode
-                    // Filter the raw data (filtered by latest date) by selected products
-                    dataForDisplay = latestDateFilteredData.filter(item => selectedProducts.has(item['Inventory_Item_name']));
-                    // Sort the raw data for 'all' view to group items by product name
-                    dataForDisplay.sort((a, b) => a['Inventory_Item_name'].localeCompare(b['Inventory_Item_name']));
-                }
-
-                if (dataForDisplay.length === 0) {
-                    noDataMessage.textContent = 'لا توجد بيانات مطابقة للمعايير المحددة (سواء لفلترة المنتجات أو لتاريخ اليوم).';
+            function displayData(data) {
+                inventoryDataContainer.innerHTML = '';
+                if (data.length === 0) {
+                    noDataMessage.textContent = 'لا توجد بيانات مطابقة للمعايير المحددة.';
                     noDataMessage.style.display = 'block';
                     printableArea.style.display = 'none';
                     downloadPngBtn.style.display = 'none';
@@ -979,18 +856,9 @@
                     sendWhatsappBtn.style.display = 'inline-block';
                 }
 
-                // Group data by product name for display
-                const groupedDataByProduct = {};
-                dataForDisplay.forEach(item => {
-                    const productName = item['Inventory_Item_name'];
-                    if (!groupedDataByProduct[productName]) {
-                        groupedDataByProduct[productName] = [];
-                    }
-                    groupedDataByProduct[productName].push(item);
-                });
+                const visibleColumns = getVisibleColumns();
 
-                // Display each product section
-                Object.keys(groupedDataByProduct).forEach(productName => {
+                data.forEach(productSummary => { // Iterate directly over the summarized data
                     const productSection = document.createElement('div');
                     productSection.classList.add('product-section');
 
@@ -998,21 +866,14 @@
                     updatesContainer.classList.add('updates-container');
 
                     const productTitle = document.createElement('h2');
-                    productTitle.textContent = `المنتج: ${productName}`;
+                    productTitle.textContent = `المنتج: ${productSummary['Inventory_Item_name']}`;
+                    
+                    const updatesBadge = document.createElement('span');
+                    updatesBadge.classList.add('updates-badge');
+                    updatesBadge.textContent = `${productSummary['original_records_count']} تحديثات`; // Use the new count
                     
                     updatesContainer.appendChild(productTitle);
-
-                    if (currentDisplayMode === 'summary') {
-                        // In summary mode, show the total original records count for the product
-                        const summaryEntry = summarizedInventoryData.find(s => s['Inventory_Item_name'] === productName);
-                        if (summaryEntry) {
-                            const updatesBadge = document.createElement('span');
-                            updatesBadge.classList.add('updates-badge');
-                            updatesBadge.textContent = `${summaryEntry['original_records_count']} تحديثات`;
-                            updatesContainer.appendChild(updatesBadge);
-                        }
-                    }
-                    
+                    updatesContainer.appendChild(updatesBadge);
                     productSection.appendChild(updatesContainer);
 
                     const table = document.createElement('table');
@@ -1027,44 +888,35 @@
                     });
 
                     const tbody = table.createTBody();
-
-                    if (currentDisplayMode === 'summary') {
-                        // In summary mode, there's only one row for the product, which is the summarized data
-                        const row = tbody.insertRow();
-                        // Find the summarized data for the current product
-                        const productSummaryData = summarizedInventoryData.find(p => p['Inventory_Item_name'] === productName);
-                        
-                        visibleColumns.forEach(headerInfo => {
-                            const td = row.insertCell();
-                            td.setAttribute('data-label', headerInfo.label);
-                            // Get the value directly from the summarized object
-                            const value = productSummaryData[headerInfo.key];
-                            td.textContent = headerInfo.format ? headerInfo.format(value) : value;
-                        });
-                    } else { // 'all' mode (multiple rows per product)
-                        // Iterate through each raw data item for the current product
-                        groupedDataByProduct[productName].forEach(item => {
-                            const row = tbody.insertRow();
-                            visibleColumns.forEach(headerInfo => {
-                                const td = row.insertCell();
-                                td.setAttribute('data-label', headerInfo.label);
-                                // Get the value directly from the raw item
-                                const value = item[headerInfo.key];
-                                td.textContent = headerInfo.format ? headerInfo.format(value) : value;
-                            });
-                        });
-                    }
+                    const row = tbody.insertRow(); // Only one row per product summary
+                    visibleColumns.forEach(headerInfo => {
+                        const td = row.insertCell();
+                        td.setAttribute('data-label', headerInfo.label);
+                        const value = productSummary[headerInfo.key]; // Directly use the summarized value
+                        td.textContent = headerInfo.format ? headerInfo.format(value) : value;
+                    });
                     
                     productSection.appendChild(table);
                     inventoryDataContainer.appendChild(productSection);
                 });
             }
 
+            function getVisibleColumns() {
+                const checkboxes = columnCheckboxesContainer.querySelectorAll('input[type="checkbox"]');
+                let visibleKeys = [];
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        visibleKeys.push(checkbox.dataset.key);
+                    }
+                });
+                return allHeadersConfig.filter(header => visibleKeys.includes(header.key));
+            }
 
             downloadPngBtn.addEventListener('click', () => {
+                // Temporarily hide elements not needed in the screenshot
                 document.querySelector('h1').style.display = 'none';
                 document.querySelector('.action-buttons').style.display = 'none';
-                document.querySelector('.column-controls').style.display = 'none';
+                document.querySelector('.column-controls').style.display = 'none'; // Hide column controls too
                 
                 printableArea.style.display = 'block'; 
                 printableArea.style.backgroundColor = 'white';
@@ -1080,58 +932,31 @@
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                     
+                    // Restore original display styles
                     document.querySelector('h1').style.display = 'block';
                     document.querySelector('.action-buttons').style.display = 'flex';
-                    document.querySelector('.column-controls').style.display = 'block';
+                    document.querySelector('.column-controls').style.display = 'block'; // Show column controls again
 
-                    // Re-evaluate display of printableArea based on final displayed data count
-                    const displayedProducts = getSelectedProducts();
-                    let hasDataToDisplay = false;
-                    if (currentDisplayMode === 'summary') {
-                        hasDataToDisplay = summarizedInventoryData.some(product => displayedProducts.has(product['Inventory_Item_name']));
-                    } else {
-                        hasDataToDisplay = latestDateFilteredData.some(item => displayedProducts.has(item['Inventory_Item_name']));
-                    }
-
-                    if (!hasDataToDisplay) {
-                         printableArea.style.display = 'none';
+                    if (summarizedInventoryData.length === 0) { // Use summarized data length
+                        printableArea.style.display = 'none';
                     }
                     printableArea.style.padding = '0';
                 }).catch(error => {
                     console.error('Error generating PNG:', error);
                     alert('حدث خطأ أثناء إنشاء الصورة. يرجى المحاولة مرة أخرى.');
+                    // Ensure elements are restored even on error
                     document.querySelector('h1').style.display = 'block';
                     document.querySelector('.action-buttons').style.display = 'flex';
                     document.querySelector('.column-controls').style.display = 'block';
-                    // Re-evaluate display of printableArea based on final displayed data count
-                     const displayedProducts = getSelectedProducts();
-                    let hasDataToDisplay = false;
-                    if (currentDisplayMode === 'summary') {
-                        hasDataToDisplay = summarizedInventoryData.some(product => displayedProducts.has(product['Inventory_Item_name']));
-                    } else {
-                        hasDataToDisplay = latestDateFilteredData.some(item => displayedProducts.has(item['Inventory_Item_name']));
-                    }
-
-                    if (!hasDataToDisplay) {
-                         printableArea.style.display = 'none';
+                    if (summarizedInventoryData.length === 0) { // Use summarized data length
+                        printableArea.style.display = 'none';
                     }
                     printableArea.style.padding = '0';
                 });
             });
 
             sendWhatsappBtn.addEventListener('click', () => {
-                let dataForMessage = [];
-                const selectedProducts = getSelectedProducts();
-
-                if (currentDisplayMode === 'summary') {
-                    dataForMessage = summarizedInventoryData.filter(product => selectedProducts.has(product['Inventory_Item_name']));
-                } else {
-                    dataForMessage = latestDateFilteredData.filter(item => selectedProducts.has(item['Inventory_Item_name']));
-                    // Sort raw data for WhatsApp message to group by product
-                    dataForMessage.sort((a, b) => a['Inventory_Item_name'].localeCompare(b['Inventory_Item_name']));
-                }
-
-                if (dataForMessage.length === 0) {
+                if (summarizedInventoryData.length === 0) { // Use summarized data length
                     alert('لا توجد بيانات لإرسالها عبر واتساب.');
                     return;
                 }
@@ -1142,46 +967,18 @@
 
                 const visibleColumns = getVisibleColumns();
 
-                // Group data for WhatsApp message to ensure product sections
-                const groupedDataForWhatsapp = {};
-                dataForMessage.forEach(item => {
-                    const productName = item['Inventory_Item_name'];
-                    if (!groupedDataForWhatsapp[productName]) {
-                        groupedDataForWhatsapp[productName] = [];
-                    }
-                    groupedDataForWhatsapp[productName].push(item);
+                summarizedInventoryData.forEach(productSummary => { // Iterate over summarized data
+                    message += `*المنتج: ${productSummary['Inventory_Item_name']}* (${productSummary['original_records_count']} تحديثات)\n`;
+                    visibleColumns.forEach(headerInfo => {
+                        const value = productSummary[headerInfo.key]; // Directly use the summarized value
+                        const formattedValue = headerInfo.format ? headerInfo.format(value) : value;
+                        // For Inventory_Date, we want to show it as "تاريخ الجرد: [التاريخ]"
+                        // For other fields, just the value as it's already summarized
+                        message += `  - ${headerInfo.label}: ${formattedValue}\n`;
+                    });
+                    message += `\n`; // Add a line break after each product's details
+                    message += `--------------------\n\n`;
                 });
-
-                Object.keys(groupedDataForWhatsapp).forEach(productName => {
-                    message += `*المنتج: ${productName}*\n`;
-                    if (currentDisplayMode === 'summary') {
-                        // Get the summarized data for this product
-                        const productSummary = summarizedInventoryData.find(s => s['Inventory_Item_name'] === productName);
-                        if (productSummary) { // Should always exist if we filtered correctly
-                            message += `  (${productSummary['original_records_count']} تحديثات)\n`;
-                        }
-                        visibleColumns.forEach(headerInfo => {
-                            // Ensure we use the summarized value for the message
-                            const value = productSummary[headerInfo.key];
-                            const formattedValue = headerInfo.format ? headerInfo.format(value) : value;
-                            message += `  - ${headerInfo.label}: ${formattedValue}\n`;
-                        });
-                    } else { // 'all' mode
-                        groupedDataForWhatsapp[productName].forEach((item, index) => {
-                            if (groupedDataForWhatsapp[productName].length > 1) { // Add separator if there are multiple updates
-                                message += `  *-- تحديث ${index + 1} --*\n`; 
-                            }
-                            visibleColumns.forEach(headerInfo => {
-                                const value = item[headerInfo.key];
-                                const formattedValue = headerInfo.format ? headerInfo.format(value) : value;
-                                message += `  - ${headerInfo.label}: ${formattedValue}\n`;
-                            });
-                        });
-                    }
-                    message += `\n`; 
-                    message += `====================\n\n`; // Larger separator between products
-                });
-
 
                 const encodedMessage = encodeURIComponent(message);
                 const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
